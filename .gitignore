@@ -1,0 +1,29 @@
+# --- Personal Instagram export data: NEVER commit ---
+# Real exports contain the usernames of real people. Keep them local.
+*.zip
+followers*.html
+following*.html
+connections/
+private/
+tests/fixtures/real/
+
+node_modules
+dist
+dist-ssr
+coverage
+*.local
+
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
