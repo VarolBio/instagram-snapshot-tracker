@@ -89,6 +89,7 @@ export type ParseWarningCode =
   | 'duplicate_handles'
   | 'no_export_date'
   | 'mixed_export_dates'
+  | 'possibly_truncated'
   | 'unreadable_file';
 
 export interface ParseWarning {

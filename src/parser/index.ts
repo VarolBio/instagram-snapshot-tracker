@@ -9,6 +9,7 @@ import {
   type SourceFile,
   type ExportDateSource,
   type KindSource,
+  type CoverageWindow,
 } from '../model/types';
 import { dateFromArchiveName, readDocumentHeader, type DocumentHeader } from './exportDate';
 import { runExtractors } from './extractors';
@@ -142,19 +143,71 @@ export function parseRawFiles(files: RawFile[], archiveNames: string[] = []): Pa
   );
 
   const dating = resolveExportDate(headers, archiveNames, all, files, warnings);
+  const coverage = headers.find((h) => h.coverage)?.coverage;
+  warnings.push(...detectTruncatedLists(all, kindsPresent, coverage));
 
   return {
     exportedAt: dating.exportedAt,
     exportedAtSource: dating.source,
     parserVersion: PARSER_VERSION,
     generatedBy: headers.find((h) => h.generatedBy)?.generatedBy,
-    coverage: headers.find((h) => h.coverage)?.coverage,
+    coverage,
     sourceFiles,
     kindsPresent,
     warnings,
     observations: all,
     contentHash: buildContentHash(all),
   };
+}
+
+/**
+ * Catches a list that Instagram trimmed to the requested date range.
+ *
+ * Choosing a date range other than "All time" does not trim every list equally. In a real
+ * export covering one year, 490 of 696 following entries were dated before the window and
+ * survived, while every single follower entry fell inside it - the earliest one day after
+ * the window opened. The followers list had been cut down to accounts acquired during the
+ * window, which makes the follower count an undercount rather than a total.
+ *
+ * That asymmetry is the signal, and it is self-evidencing: one list proves the export was
+ * willing to include entries older than the window, so another list containing none is
+ * suspicious. A list where everything simply falls inside the window is not flagged on its
+ * own, because that is exactly what a genuine all-time export looks like.
+ */
+function detectTruncatedLists(
+  observations: Observation[],
+  kindsPresent: readonly RelationKind[],
+  coverage: CoverageWindow | undefined,
+): ParseWarning[] {
+  if (!coverage) return [];
+  const windowStart = Date.parse(coverage.from);
+  if (Number.isNaN(windowStart)) return [];
+
+  const stats = kindsPresent.map((kind) => {
+    const dated = observations.filter((o) => o.kind === kind && o.followedAt !== undefined);
+    return {
+      kind,
+      dated: dated.length,
+      predating: dated.filter((o) => o.followedAt! < windowStart).length,
+    };
+  });
+
+  const proof = stats.filter((s) => s.predating > 0);
+  if (proof.length === 0) return [];
+
+  const witness = proof.reduce((a, b) => (a.predating >= b.predating ? a : b));
+
+  return stats
+    .filter((s) => s.dated > 0 && s.predating === 0)
+    .map((s) => ({
+      code: 'possibly_truncated' as const,
+      message:
+        `Every entry in ${RELATION_LABELS[s.kind]} is dated inside the window this export says it covers ` +
+        `(from ${coverage.from.slice(0, 10)}), while ${RELATION_LABELS[witness.kind]} contains ${witness.predating} ` +
+        `older ${witness.predating === 1 ? 'entry' : 'entries'}. ${RELATION_LABELS[s.kind]} was probably limited by ` +
+        `the date range requested, so this is a count of ` +
+        `accounts from that window rather than a total. Re-request the export with the range set to "All time" to be sure.`,
+    }));
 }
 
 function resolveExportDate(

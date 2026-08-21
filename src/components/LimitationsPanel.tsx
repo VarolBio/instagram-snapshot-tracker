@@ -7,6 +7,10 @@ const LIMITATIONS = [
     body: 'Instagram decides what an export contains, and its own header states the window it covers. Your first upload is a baseline of what Instagram included that day, not a complete record of everyone who ever followed you.',
   },
   {
+    title: 'A date range can quietly shrink one list and not another',
+    body: 'If you request anything other than "All time", Instagram may trim your followers list to accounts acquired inside that window while leaving your following list reaching back years. The follower count then looks like a total when it is really a subset. This app compares each list against the window the export declares and warns you when one of them looks trimmed, but the only real fix is to re-request with the range set to "All time".',
+  },
+  {
     title: 'Anyone who came and went between snapshots is invisible',
     body: 'If somebody followed you in February and left in March, and your snapshots are from January and April, nothing in either file records that they were ever there.',
   },

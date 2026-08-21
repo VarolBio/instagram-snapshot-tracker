@@ -97,6 +97,14 @@ export function CurrentScreen({
         />
       </div>
 
+      {snapshot.warnings
+        .filter((w) => w.code === 'possibly_truncated')
+        .map((warning, i) => (
+          <Callout key={i} tone="warning" title="These counts may be lower than your real totals">
+            {warning.message}
+          </Callout>
+        ))}
+
       {!snapshot.kindsPresent.includes('follower') ||
       !snapshot.kindsPresent.includes('following') ? (
         <Callout tone="warning" title="This snapshot is incomplete">

@@ -81,8 +81,11 @@ describe.skipIf(realFiles.length === 0)('a real Instagram export', () => {
     expect(snapshot.coverage).toBeDefined();
   });
 
-  it('parses without warnings', () => {
-    expect(snapshot.warnings).toEqual([]);
+  it('parses without any structural problem', () => {
+    // A truncation notice describes the export's own date range, not a parsing failure,
+    // so it is allowed here. Anything else means the reader struggled with the file.
+    const structural = snapshot.warnings.filter((w) => w.code !== 'possibly_truncated');
+    expect(structural).toEqual([]);
   });
 });
 

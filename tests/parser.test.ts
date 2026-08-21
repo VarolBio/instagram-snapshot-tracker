@@ -68,7 +68,8 @@ describe('parsing followers and following files', () => {
     linkStyle: 'followers',
     entries: [
       { handle: 'alex', timestamp: 'Aug 01, 2026 9:09 am' },
-      { handle: 'bea', timestamp: 'Jul 31, 2026 7:11 am' },
+      // Predates the fixture's coverage window, so this reads as a full all-time list.
+      { handle: 'bea', timestamp: 'Feb 02, 2019 7:11 am' },
     ],
   });
 
@@ -280,6 +281,77 @@ describe('export dating', () => {
     const snap = parseRawFiles([raw('followers_1.html', a), raw('following.html', b)]);
     expect(snap.warnings.map((w) => w.code)).toContain('mixed_export_dates');
     expect(snap.exportedAt).toBe('2026-06-01T00:00:00.000Z');
+  });
+});
+
+describe('spotting a list trimmed by the requested date range', () => {
+  const coverage = { from: '2025-07-23T21:00Z', to: '2026-08-08T21:00Z' };
+
+  /** Mirrors the real case: following kept pre-window entries, followers did not. */
+  function build(followerDates: string[], followingDates: string[]) {
+    return parseRawFiles([
+      raw(
+        'followers_1.html',
+        buildExportHtml({
+          heading: 'Followers',
+          coverage,
+          entries: followerDates.map((timestamp, i) => ({ handle: `f${i}`, timestamp })),
+        }),
+      ),
+      raw(
+        'following.html',
+        buildExportHtml({
+          heading: 'Following',
+          linkStyle: 'following',
+          coverage,
+          entries: followingDates.map((timestamp, i) => ({ handle: `g${i}`, timestamp })),
+        }),
+      ),
+    ]);
+  }
+
+  it('flags the list whose entries all fall inside the window when another list proves older ones survive', () => {
+    const snap = build(
+      ['Aug 01, 2026 9:09 am', 'Sep 30, 2025 1:00 pm'],
+      ['Jan 19, 2018 10:42 am', 'Mar 03, 2022 8:00 am', 'Aug 15, 2026 9:01 am'],
+    );
+    const truncated = snap.warnings.filter((w) => w.code === 'possibly_truncated');
+    expect(truncated).toHaveLength(1);
+    expect(truncated[0].message).toContain('Followers');
+    expect(truncated[0].message).toContain('2 older entries');
+    expect(truncated[0].message).not.toContain('1 older entries');
+    expect(truncated[0].message).toContain('All time');
+  });
+
+  it('stays quiet when both lists reach back before the window', () => {
+    const snap = build(
+      ['Jan 19, 2019 10:42 am', 'Aug 01, 2026 9:09 am'],
+      ['Jan 19, 2018 10:42 am', 'Aug 15, 2026 9:01 am'],
+    );
+    expect(snap.warnings.filter((w) => w.code === 'possibly_truncated')).toEqual([]);
+  });
+
+  it('stays quiet when no list has anything older, which is what a genuine all-time export looks like', () => {
+    const snap = build(['Aug 01, 2026 9:09 am'], ['Aug 15, 2026 9:01 am']);
+    expect(snap.warnings.filter((w) => w.code === 'possibly_truncated')).toEqual([]);
+  });
+
+  it('stays quiet when the export states no coverage window', () => {
+    const snap = parseRawFiles([
+      raw(
+        'followers_1.html',
+        buildExportHtml({ omitAside: true, entries: [{ handle: 'a', timestamp: 'Aug 01, 2026 9:09 am' }] }),
+      ),
+      raw(
+        'following.html',
+        buildExportHtml({
+          heading: 'Following',
+          omitAside: true,
+          entries: [{ handle: 'b', timestamp: 'Jan 19, 2018 10:42 am' }],
+        }),
+      ),
+    ]);
+    expect(snap.warnings.filter((w) => w.code === 'possibly_truncated')).toEqual([]);
   });
 });
 

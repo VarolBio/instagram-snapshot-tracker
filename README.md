@@ -23,6 +23,31 @@ changed between any two of them.
 There is no Instagram login, no scraping, no unofficial API, and no server. The app only
 ever reads the files you hand it.
 
+## What a single upload already tells you
+
+You do not need two exports to get value. Most of the app works from one, because the
+interesting comparison is between your two lists rather than between two points in time.
+
+Working immediately, from one upload:
+
+- **Who does not follow you back** — your following list minus your followers list. This is
+  usually the largest and most useful answer, and it needs only one export.
+- Followers, following, mutuals, and the people who follow you that you have not followed back
+- **A follow date for every single account**, because the export includes one per entry. That
+  makes "who did I follow years ago that never followed back" a sortable question
+- Categorising accounts as personal, creator, or business, and filtering non-followers by it
+
+Needing a second upload:
+
+- Who started or stopped appearing in a list, which is the entire Changes screen
+- Account timelines with more than one point on them
+- Possible username changes, which are inferred from a departure and an arrival sharing a date
+
+So one upload answers "where do I stand", and the second onwards answers "what changed". A
+useful side effect of the per-entry follow dates is that a single export shows when your
+current followers arrived — though note that only covers followers you *still have*, so it is
+not a historical follower count.
+
 ## What it deliberately will not tell you
 
 This is the part most follower trackers get wrong, so it is worth being direct.
@@ -41,6 +66,7 @@ Other honest limits, all of which the app states in its own interface:
 | Limitation | Why |
 | --- | --- |
 | "All time" is not all of history | Instagram decides what to include, and the export's own header states the window it covers |
+| A date range can shrink one list but not another | Requesting anything but "All time" may trim followers to that window while following still reaches back years, making the follower count a subset that looks like a total. The app detects this and warns |
 | Someone who followed and left between two snapshots is invisible | Neither file ever recorded them |
 | Renames are suggestions, never confirmations | Exports contain no account IDs, so the only link is a shared follow date |
 | No automatic influencer or brand detection | The export has no follower counts, verification badges, or account types to base one on |
@@ -71,7 +97,7 @@ export prints dates only to the minute.
 ```bash
 npm install
 npm run dev      # development server
-npm test         # 88 tests
+npm test         # 93 tests
 npm run build    # production build into dist/
 ```
 
