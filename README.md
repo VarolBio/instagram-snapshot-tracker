@@ -68,6 +68,7 @@ Other honest limits, all of which the app states in its own interface:
 | "All time" is not all of history | Instagram decides what to include, and the export's own header states the window it covers |
 | A date range can shrink one list but not another | Requesting anything but "All time" may trim followers to that window while following still reaches back years, making the follower count a subset that looks like a total. The app detects this and warns |
 | Someone who followed and left between two snapshots is invisible | Neither file ever recorded them |
+| Exports covering different date ranges are not directly comparable | A two-month export lists only followers gained in those two months, so absences it implies are set aside rather than reported as departures |
 | Renames are suggestions, never confirmations | Exports contain no account IDs, so the only link is a shared follow date |
 | No automatic influencer or brand detection | The export has no follower counts, verification badges, or account types to base one on |
 | A missing list is a gap, not an exodus | Comparisons are refused when either snapshot lacks the list |

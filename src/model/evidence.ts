@@ -107,3 +107,41 @@ export function describePredatedAppearance(
 export function describeMissingComparison(kind: RelationKind, missingIn: string): string {
   return `"${missingIn}" does not contain ${LIST_PHRASE[kind]}, so no comparison is possible for this list.`;
 }
+
+/**
+ * An export requested for a limited date range only lists accounts acquired inside it.
+ * Someone who followed before that range is absent from the file whether or not they
+ * are still there, so their absence carries no information at all.
+ */
+export function describeOutOfRange(
+  laterLabel: string,
+  windowStart: string,
+  followedAt: number | undefined,
+): string {
+  if (followedAt === undefined) {
+    return (
+      `This account has no follow date, and "${laterLabel}" only covers accounts from ` +
+      `${formatDate(windowStart)} onward, so its absence there cannot be interpreted.`
+    );
+  }
+  return (
+    `This account started following on ${formatDate(followedAt)}, before the date range ` +
+    `"${laterLabel}" covers (from ${formatDate(windowStart)}). That export would not have ` +
+    `listed them whether they were still there or not, so their absence proves nothing.`
+  );
+}
+
+export function describeRangeMismatch(
+  kind: RelationKind,
+  laterLabel: string,
+  windowStart: string,
+  affected: number,
+): string {
+  return (
+    `"${laterLabel}" was exported for a date range starting ${formatDate(windowStart)}, and its ` +
+    `${LIST_PHRASE[kind]} contains nothing from before then. ${affected} ` +
+    `${affected === 1 ? 'account is' : 'accounts are'} missing from it for that reason alone, ` +
+    `so ${affected === 1 ? 'it has' : 'they have'} been set aside rather than counted as gone. ` +
+    `Re-export with the range set to "All time" to compare properly.`
+  );
+}

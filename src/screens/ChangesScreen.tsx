@@ -146,14 +146,27 @@ function KindSection({
 
   const appeared = match(diff.appeared);
   const disappeared = match(diff.disappeared);
+  const outOfRange = match(diff.outOfRange);
 
   return (
     <div>
       <SectionTitle
-        hint={`${formatCount(diff.unchanged)} unchanged \u00b7 +${formatCount(diff.appeared.length)} \u00b7 \u2212${formatCount(diff.disappeared.length)}`}
+        hint={`${formatCount(diff.unchanged)} unchanged \u00b7 +${formatCount(diff.appeared.length)} \u00b7 \u2212${formatCount(diff.disappeared.length)}${
+          diff.outOfRange.length > 0
+            ? ` \u00b7 ${formatCount(diff.outOfRange.length)} outside the date range`
+            : ''
+        }`}
       >
         {RELATION_LABELS[diff.kind]}
       </SectionTitle>
+
+      {diff.rangeWarning ? (
+        <div className="mb-3">
+          <Callout tone="warning" title="These exports cover different periods">
+            {diff.rangeWarning}
+          </Callout>
+        </div>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-2">
         <EntryList
@@ -169,6 +182,24 @@ function KindSection({
           onOpenAccount={onOpenAccount}
         />
       </div>
+
+      {diff.outOfRange.length > 0 ? (
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm text-ink-400 hover:text-ink-200">
+            {formatCount(diff.outOfRange.length)} account
+            {diff.outOfRange.length === 1 ? '' : 's'} could not be checked because of the date
+            range
+          </summary>
+          <div className="mt-3">
+            <EntryList
+              title={`Outside the later export's range (${formatCount(outOfRange.length)})`}
+              entries={outOfRange}
+              empty="None match your search."
+              onOpenAccount={onOpenAccount}
+            />
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

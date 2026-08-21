@@ -3,7 +3,9 @@ import {
   describeDatedAppearance,
   describeDisappearance,
   describeMissingComparison,
+  describeOutOfRange,
   describePredatedAppearance,
+  describeRangeMismatch,
   type EvidenceLevel,
 } from '../model/evidence';
 import { RELATION_KINDS, type Observation, type RelationKind, type Snapshot } from '../model/types';
@@ -30,6 +32,13 @@ export interface KindDiff {
   reason?: string;
   appeared: DiffEntry[];
   disappeared: DiffEntry[];
+  /**
+   * Accounts absent from the later snapshot only because its export was requested for a
+   * date range that predates them. Held separately so they never inflate `disappeared`.
+   */
+  outOfRange: DiffEntry[];
+  /** Set when the later export's date range makes this comparison partial. */
+  rangeWarning?: string;
   unchanged: number;
 }
 
@@ -71,6 +80,7 @@ export function diffSnapshots(
         reason: describeMissingComparison(kind, inFrom ? to.label : from.label),
         appeared: [],
         disappeared: [],
+        outOfRange: [],
         unchanged: 0,
       });
       continue;
@@ -79,10 +89,18 @@ export function diffSnapshots(
     const before = indexOf(from, kind);
     const after = indexOf(to, kind);
 
-    const goneObs = [...before.values()].filter((o) => !after.has(o.handle));
+    const allGone = [...before.values()].filter((o) => !after.has(o.handle));
     const newObs = [...after.values()].filter((o) => !before.has(o.handle));
     const unchanged = [...before.keys()].filter((h) => after.has(h)).length;
 
+    const windowStart = trimmedWindowStart(to, kind, allGone);
+    const goneObs =
+      windowStart === null ? allGone : allGone.filter((o) => couldAppearIn(o, windowStart));
+    const beyondRange =
+      windowStart === null ? [] : allGone.filter((o) => !couldAppearIn(o, windowStart));
+
+    // Renames are matched only among accounts the later export could actually have listed;
+    // pairing against an account the date range excluded would be meaningless.
     const suggestions = findRenameSuggestions(kind, goneObs, newObs).filter(
       (s) => !dismissedRenames.has(s.key),
     );
@@ -100,6 +118,17 @@ export function diffSnapshots(
       disappeared: goneObs
         .map((o) => describeDeparture(o, kind, from, to, renameByFrom.get(o.handle)))
         .sort(byHandle),
+      outOfRange: beyondRange
+        .map((o) => ({
+          ...toEntry(o),
+          evidence: 'insufficient_evidence' as const,
+          statement: describeOutOfRange(to.label, windowStart!, o.followedAt),
+        }))
+        .sort(byHandle),
+      rangeWarning:
+        beyondRange.length > 0
+          ? describeRangeMismatch(kind, to.label, windowStart!, beyondRange.length)
+          : undefined,
       unchanged,
     });
   }
@@ -164,6 +193,48 @@ function toEntry(observation: Observation) {
     followedAtRaw: observation.followedAtRaw,
     sourcePath: observation.sourcePath,
   };
+}
+
+/**
+ * Decides whether the later export's date range trimmed this list, and returns the start
+ * of that range if so.
+ *
+ * An export can be requested for a limited period, and Instagram then lists only the
+ * accounts acquired within it. Comparing an all-time export against a two-month one would
+ * otherwise put every long-standing follower in the "gone" column.
+ *
+ * The test is self-evidencing rather than a guess. A list that kept entries older than its
+ * own window proves the range was never applied to it, so its absences are real - this is
+ * exactly how the following list behaves in real exports, while the followers list beside
+ * it gets trimmed. And a range is only invoked when it actually explains a dated account
+ * that went missing, so a wide window over a genuinely complete export changes nothing.
+ */
+function trimmedWindowStart(
+  to: Snapshot,
+  kind: RelationKind,
+  missing: readonly Observation[],
+): string | null {
+  if (!to.coverage) return null;
+  const windowStart = Date.parse(to.coverage.from);
+  if (Number.isNaN(windowStart)) return null;
+
+  const keptOlderEntries = to.observations.some(
+    (o) => o.kind === kind && o.followedAt !== undefined && o.followedAt < windowStart,
+  );
+  if (keptOlderEntries) return null;
+
+  const rangeExplainsSomeone = missing.some(
+    (o) => o.followedAt !== undefined && o.followedAt < windowStart,
+  );
+  return rangeExplainsSomeone ? to.coverage.from : null;
+}
+
+/** Whether the later export could have listed this account at all, given its date range. */
+function couldAppearIn(observation: Observation, windowStart: string): boolean {
+  // No follow date means no way to place the account relative to the range. Once the list
+  // is known to be trimmed, treating that as unverifiable beats guessing at a departure.
+  if (observation.followedAt === undefined) return false;
+  return observation.followedAt >= Date.parse(windowStart);
 }
 
 function indexOf(snapshot: Snapshot, kind: RelationKind): Map<string, Observation> {

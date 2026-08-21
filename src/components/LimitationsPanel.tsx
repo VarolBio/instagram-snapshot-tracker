@@ -11,6 +11,10 @@ const LIMITATIONS = [
     body: 'If you request anything other than "All time", Instagram may trim your followers list to accounts acquired inside that window while leaving your following list reaching back years. The follower count then looks like a total when it is really a subset. This app compares each list against the window the export declares and warns you when one of them looks trimmed, but the only real fix is to re-request with the range set to "All time".',
   },
   {
+    title: 'Two exports taken over different date ranges are not directly comparable',
+    body: 'An export requested for the last two months lists only the followers gained in those two months. Comparing it against an all-time export would put every long-standing follower in the "gone" column. Where the later export\u2019s own date range explains an absence, that account is set aside and counted separately instead of being reported as a departure. Always request "All time" so your snapshots are comparable.',
+  },
+  {
     title: 'Anyone who came and went between snapshots is invisible',
     body: 'If somebody followed you in February and left in March, and your snapshots are from January and April, nothing in either file records that they were ever there.',
   },
