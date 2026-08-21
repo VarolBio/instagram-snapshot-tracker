@@ -37,6 +37,8 @@ interface StoreValue {
   removeSnapshot(id: string): Promise<void>;
   renameSnapshot(id: string, label: string): Promise<void>;
   classify(handle: string, category: AccountCategory): Promise<void>;
+  classifyMany(handles: readonly string[], category: AccountCategory): Promise<void>;
+  dismissKeywordSuggestions(handles: readonly string[]): Promise<void>;
   dismissRename(from: string, to: string): Promise<void>;
   updateSettings(patch: Partial<AppSettings>): Promise<void>;
   wipe(): Promise<void>;
@@ -132,6 +134,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ...settings.classifications,
             [handle]: { handle, category, updatedAt: new Date().toISOString() },
           },
+        });
+      },
+
+      async classifyMany(handles, category) {
+        if (handles.length === 0) return;
+        const now = new Date().toISOString();
+        const classifications = { ...settings.classifications };
+        for (const handle of handles) {
+          classifications[handle] = { handle, category, updatedAt: now };
+        }
+        await persistSettings({ ...settings, classifications });
+      },
+
+      async dismissKeywordSuggestions(handles) {
+        if (handles.length === 0) return;
+        const extra = handles.filter((h) => !settings.dismissedKeywordSuggestions.includes(h));
+        if (extra.length === 0) return;
+        await persistSettings({
+          ...settings,
+          dismissedKeywordSuggestions: [...settings.dismissedKeywordSuggestions, ...extra],
         });
       },
 

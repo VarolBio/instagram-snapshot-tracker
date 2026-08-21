@@ -7,6 +7,8 @@
  * can always be traced back to the snapshots that produced it.
  */
 
+import { RECOMMENDED_BRAND_KEYWORDS } from './keywords';
+
 /** Bumped whenever parsing output changes in a way that affects stored snapshots. */
 export const PARSER_VERSION = '1.0.0';
 
@@ -165,10 +167,19 @@ export interface AppSettings {
   dismissedRenames: string[];
   /** Default state of the "hide creators and brands" filter on the non-followers screen. */
   hideNonPersonalInNonFollowers: boolean;
+  /**
+   * Username fragments used to guess organisations. Starts as the recommended list.
+   * An empty list turns the guess off. Edits stay on this device.
+   */
+  brandKeywords: string[];
+  /** Handles the user said were not organisations, so the keyword guess leaves them alone. */
+  dismissedKeywordSuggestions: string[];
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
   classifications: {},
   dismissedRenames: [],
   hideNonPersonalInNonFollowers: false,
+  brandKeywords: [...RECOMMENDED_BRAND_KEYWORDS],
+  dismissedKeywordSuggestions: [],
 };

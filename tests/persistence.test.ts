@@ -98,6 +98,8 @@ describe('settings', () => {
     },
     dismissedRenames: ['a->b'],
     hideNonPersonalInNonFollowers: true,
+    brandKeywords: ['shop'],
+    dismissedKeywordSuggestions: ['notabrand'],
   };
 
   it('survives a reload', async () => {
@@ -125,6 +127,8 @@ describe('restoring a backup', () => {
         classifications: {},
         dismissedRenames: ['x->y'],
         hideNonPersonalInNonFollowers: false,
+        brandKeywords: [],
+        dismissedKeywordSuggestions: [],
       },
     });
 
@@ -141,6 +145,8 @@ describe('deleting everything', () => {
       classifications: {},
       dismissedRenames: ['a->b'],
       hideNonPersonalInNonFollowers: true,
+      brandKeywords: ['shop'],
+      dismissedKeywordSuggestions: [],
     });
 
     await deleteEverything();

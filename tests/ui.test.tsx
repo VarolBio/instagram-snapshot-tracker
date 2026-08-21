@@ -90,6 +90,6 @@ describe('the app shell', () => {
     await clickTab('Settings');
     expect(container.textContent).toContain('What this app cannot tell you');
     expect(container.textContent).toContain('"All time" is not all of history');
-    expect(container.textContent).toContain('Delete all data');
+    expect(container.textContent).toContain('Organisation keyword guesses');
   });
 });

@@ -1,4 +1,9 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+import type {
+  ButtonHTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+  TextareaHTMLAttributes,
+} from 'react';
 
 export function cx(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(' ');
@@ -63,6 +68,19 @@ export function TextInput({ className, ...props }: InputHTMLAttributes<HTMLInput
       {...props}
       className={cx(
         'rounded-lg border border-ink-700 bg-ink-950 px-3 py-2 text-sm text-ink-100',
+        'placeholder:text-ink-500 focus:border-violet-500 focus:outline-none',
+        className,
+      )}
+    />
+  );
+}
+
+export function TextArea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      {...props}
+      className={cx(
+        'min-h-40 w-full rounded-lg border border-ink-700 bg-ink-950 px-3 py-2 font-mono text-sm text-ink-100',
         'placeholder:text-ink-500 focus:border-violet-500 focus:outline-none',
         className,
       )}

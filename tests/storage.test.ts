@@ -39,6 +39,7 @@ describe('backup round trip', () => {
       settings: { classifications: {} },
     });
     expect(parseBackup(json).settings.dismissedRenames).toEqual([]);
+    expect(parseBackup(json).settings.brandKeywords.length).toBeGreaterThan(0);
   });
 });
 

@@ -70,7 +70,7 @@ Other honest limits, all of which the app states in its own interface:
 | Someone who followed and left between two snapshots is invisible | Neither file ever recorded them |
 | Exports covering different date ranges are not directly comparable | A two-month export lists only followers gained in those two months, so absences it implies are set aside rather than reported as departures |
 | Renames are suggestions, never confirmations | Exports contain no account IDs, so the only link is a shared follow date |
-| No automatic influencer or brand detection | The export has no follower counts, verification badges, or account types to base one on |
+| No automatic influencer or brand detection | The export has no follower counts. Optional username-keyword guesses stay suggestions until you confirm them |
 | A missing list is a gap, not an exodus | Comparisons are refused when either snapshot lacks the list |
 
 Every conclusion in the interface carries a label — Confirmed by export, Likely change,

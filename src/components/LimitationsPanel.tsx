@@ -28,7 +28,7 @@ const LIMITATIONS = [
   },
   {
     title: 'There is no follower count, verification badge, or account type',
-    body: 'The export lists usernames and follow dates and nothing more. Telling a creator or brand apart from a personal account is therefore your judgement, recorded by you, and no heuristic pretends otherwise.',
+    body: 'The export lists usernames and follow dates and nothing more. Optional keyword guesses (official, festival, .io, and whatever you add) only read the username and stay suggestions until you confirm them. Telling a creator or brand apart from a personal account is still your judgement.',
   },
   {
     title: 'A missing list is treated as a gap, not an exodus',

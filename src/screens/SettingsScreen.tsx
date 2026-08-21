@@ -1,13 +1,19 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { keywordsEqual, parseKeywordList } from '../analysis/classify';
 import { LimitationsPanel } from '../components/LimitationsPanel';
-import { Button, Callout, Card, SectionTitle } from '../components/ui';
+import { Button, Callout, Card, SectionTitle, TextArea } from '../components/ui';
 import { formatCount } from '../lib/format';
+import {
+  RECOMMENDED_BRAND_KEYWORD_GROUPS,
+  RECOMMENDED_BRAND_KEYWORDS,
+  RECOMMENDED_BRAND_SUFFIXES,
+} from '../model/keywords';
 import { ACCOUNT_CATEGORY_LABELS, type AccountCategory } from '../model/types';
 import { parseBackup, serializeBackup } from '../storage/repo';
 import { useStore } from '../state/store';
 
 export function SettingsScreen() {
-  const { snapshots, settings, restore, wipe } = useStore();
+  const { snapshots, settings, restore, wipe, updateSettings } = useStore();
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [message, setMessage] = useState<{ tone: 'good' | 'danger'; text: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -107,6 +113,11 @@ export function SettingsScreen() {
         </Card>
       </div>
 
+      <KeywordEditor
+        keywords={settings.brandKeywords}
+        onSave={(keywords) => updateSettings({ brandKeywords: keywords })}
+      />
+
       <div>
         <SectionTitle>Delete everything</SectionTitle>
         <Card className="space-y-3 p-5">
@@ -139,6 +150,97 @@ export function SettingsScreen() {
       </div>
 
       <LimitationsPanel />
+    </div>
+  );
+}
+
+function KeywordEditor({
+  keywords,
+  onSave,
+}: {
+  keywords: string[];
+  onSave: (keywords: string[]) => void | Promise<void>;
+}) {
+  const [draft, setDraft] = useState(() => keywords.join('\n'));
+
+  useEffect(() => {
+    setDraft(keywords.join('\n'));
+  }, [keywords]);
+  const parsed = parseKeywordList(draft);
+  const dirty = !keywordsEqual(parsed.keywords, keywords);
+  const usingRecommended = keywordsEqual(keywords, RECOMMENDED_BRAND_KEYWORDS);
+
+  return (
+    <div>
+      <SectionTitle>Organisation keyword guesses</SectionTitle>
+      <Card className="space-y-4 p-5">
+        <p className="text-sm text-ink-400">
+          Usernames are matched against these fragments, entirely in this browser. A hit is a
+          suggestion to mark the account as a brand, never an automatic classification. Short
+          words (under 3 characters) are ignored so they cannot hide inside ordinary names.
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(RECOMMENDED_BRAND_KEYWORD_GROUPS).map(([group, words]) => (
+            <span
+              key={group}
+              className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
+              title={words.join(', ')}
+            >
+              {group}: {words.join(', ')}
+            </span>
+          ))}
+          <span
+            className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
+            title={RECOMMENDED_BRAND_SUFFIXES.join(', ')}
+          >
+            Domains: {RECOMMENDED_BRAND_SUFFIXES.join(', ')}
+          </span>
+        </div>
+
+        <label className="block text-xs text-ink-400">
+          Your list (one per line, or separated by commas)
+          <TextArea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={12}
+            spellCheck={false}
+            className="mt-1"
+          />
+        </label>
+
+        {parsed.ignored.length > 0 ? (
+          <Callout tone="warning" title="Too short to use safely">
+            Ignored: {parsed.ignored.join(', ')}
+          </Callout>
+        ) : null}
+
+        <p className="text-xs text-ink-500">
+          {formatCount(parsed.keywords.length)} keyword{parsed.keywords.length === 1 ? '' : 's'}
+          {usingRecommended ? ' · this is the recommended list' : ''}
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="primary"
+            disabled={!dirty}
+            onClick={() => onSave(parsed.keywords)}
+          >
+            Save keywords
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={usingRecommended && !dirty}
+            onClick={() => {
+              const next = [...RECOMMENDED_BRAND_KEYWORDS];
+              setDraft(next.join('\n'));
+              void onSave(next);
+            }}
+          >
+            Reset to recommended
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }
