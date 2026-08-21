@@ -24,7 +24,7 @@ describe('suggesting which accounts are organisations', () => {
   });
 
   it('flags handles that read like a web address', () => {
-    const suggestion = suggestCategory('journal.io');
+    const suggestion = suggestCategory('site.io');
     expect(suggestion?.matched).toBe('.io');
     expect(suggestion?.suggested).toBe('business');
   });
@@ -86,9 +86,13 @@ describe('suggesting which accounts are organisations', () => {
     for (const [group, words] of Object.entries(RECOMMENDED_BRAND_KEYWORD_GROUPS)) {
       for (const word of words) {
         if (word === 'tv') continue;
-        expect(word.length, `${group}/${word}`).toBeGreaterThanOrEqual(4);
+        expect(word.length, `${group}/${word}`).toBeGreaterThanOrEqual(3);
       }
     }
+  });
+
+  it('has no duplicate recommended keywords', () => {
+    expect(new Set(RECOMMENDED_BRAND_KEYWORDS).size).toBe(RECOMMENDED_BRAND_KEYWORDS.length);
   });
 
   it('does not fire on names that merely contain a short brandish fragment', () => {
@@ -103,12 +107,16 @@ describe('suggesting which accounts are organisations', () => {
     expect(suggestCategory('activist')).toBeNull();
   });
 
-  it('picks up the newly added organisation words', () => {
+  it('picks up organisation, place and club words', () => {
     expect(suggestCategory('campusuniversity')?.matched).toBe('university');
     expect(suggestCategory('dept.edu')?.matched).toBe('.edu');
     expect(suggestCategory('runnersclub')?.matched).toBe('club');
     expect(suggestCategory('thedailyhub')?.matched).toBe('daily');
-    expect(suggestCategory('startupholding')?.matched).toBe('holding');
+    expect(suggestCategory('agencyholding')?.matched).toBe('holding');
+    expect(suggestCategory('visitistanbul')?.matched).toBe('istanbul');
+    expect(suggestCategory('galatasaraystore')?.matched).toBe('galatasaray');
+    expect(suggestCategory('crossfitgym')?.matched).toBe('gym');
+    expect(suggestCategory('officialpage')?.matched).toBe('officialpage');
   });
 });
 
@@ -130,5 +138,49 @@ describe('editing the keyword list', () => {
     expect(keywordsEqual([...RECOMMENDED_BRAND_KEYWORDS].reverse(), RECOMMENDED_BRAND_KEYWORDS)).toBe(
       true,
     );
+  });
+
+  it('includes the focused organisation words, minus a few that fire inside ordinary names', () => {
+    const skipped = new Set(['band', 'spa']);
+    const requested = [
+      'academy', 'accessories', 'accounting', 'activism', 'advertising', 'affiliate',
+      'agency', 'airlines', 'alliance', 'alumni', 'ambassador', 'analytics', 'animals',
+      'apparel', 'architecture', 'archive', 'artist', 'association', 'astrology',
+      'athletics', 'auction', 'audio', 'automotive', 'bakery', 'band', 'bank', 'barbershop',
+      'beauty', 'blog', 'blogger', 'bookings', 'books', 'bookshop', 'bookstore',
+      'boutique', 'brand', 'broadcast', 'brokerage', 'builder', 'business', 'cafe',
+      'campaign', 'campus', 'careers', 'catering', 'celebrity', 'channel', 'charity',
+      'church', 'cinema', 'clinic', 'clothing', 'club', 'coach', 'coaching', 'coalition',
+      'college', 'comedy', 'commerce', 'community', 'company', 'conference',
+      'construction', 'consultancy', 'consulting', 'contentcreator', 'cosmetics',
+      'council', 'coupon', 'courses', 'creativeagency', 'creator', 'crypto', 'daily',
+      'danceacademy', 'danceschool', 'dealership', 'deals', 'department', 'designagency',
+      'designstudio', 'digitalagency', 'digitalcreator', 'directory', 'discount',
+      'distribution', 'distributor', 'ecommerce', 'education', 'embassy', 'enterprise',
+      'enterprises', 'entertainment', 'equipment', 'events', 'fanaccount', 'fanbase',
+      'fanclub', 'fandom', 'fanpage', 'fans', 'fashion', 'federation', 'finance',
+      'fitness', 'florist', 'foodblog', 'foodie', 'footballclub', 'forum', 'foundation',
+      'gallery', 'gaming', 'global', 'government', 'group', 'guild', 'gym', 'haircare',
+      'hairsalon', 'health', 'holdings', 'hospital', 'hostel', 'hotel', 'influencer',
+      'institute', 'insurance', 'international', 'investing', 'investments', 'journal',
+      'lawfirm', 'league', 'legalservices', 'lifestyleblog', 'limited', 'logistics',
+      'magazine', 'management', 'manufacturer', 'marketing', 'marketplace', 'media',
+      'medical', 'members', 'membership', 'ministry', 'modelagency', 'municipality',
+      'museum', 'musiclabel', 'network', 'news', 'newsdaily', 'newspaper', 'newsroom',
+      'nonprofit', 'nutrition', 'official', 'officialaccount', 'officialbrand',
+      'officialclub', 'officialpage', 'officialshop', 'officialstore', 'onlineshop',
+      'onlinestore', 'organization', 'outlet', 'pharmacy', 'photographer', 'photography',
+      'podcast', 'podcaster', 'politics', 'press', 'production', 'productions',
+      'professional', 'promotions', 'property', 'publicfigure', 'publisher', 'publishing',
+      'radio', 'realestate', 'records', 'recruitment', 'rentals', 'repairservice',
+      'reseller', 'resort', 'restaurant', 'retail', 'salon', 'school', 'shop',
+      'shoponline', 'society', 'solutions', 'spa', 'sportsclub', 'startup', 'store',
+      'streamer', 'studio', 'supporters', 'supportersclub', 'team', 'technews',
+      'theofficial', 'theatre', 'tourism', 'tours', 'trainer', 'travel', 'university',
+      'verified', 'videochannel', 'videocreator', 'vlogger', 'volunteers', 'warehouse',
+      'weddingplanner', 'wellness', 'wholesale', 'worldwide', 'yoga', 'youtuber',
+    ];
+    const present = new Set(RECOMMENDED_BRAND_KEYWORDS);
+    expect(requested.filter((word) => !skipped.has(word) && !present.has(word))).toEqual([]);
   });
 });

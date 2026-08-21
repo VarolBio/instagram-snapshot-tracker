@@ -87,11 +87,13 @@ export prints dates only to the minute.
 
 ## Getting your export
 
-1. Instagram app → **Accounts Centre** → **Your information and permissions** → **Download your information**
-2. Choose **Some of your information**, then select only **Followers and following** under Connections
-3. Set the date range to **All time** and the format to **HTML**
-4. Instagram emails a download link, usually within a few minutes
-5. Drop the ZIP into the app, and repeat every few weeks to build up a history
+1. Instagram → **Settings** → **Accounts Centre** → **Your information and permissions** → **Export your information** → **Create export** → **Export to device**
+2. Customise information: tick only **Followers and following**
+3. Date range: **All time**. Format: **HTML**
+4. Start export. Instagram will give you a ZIP on the device, or by email
+5. Drop the ZIP into the app, or unzip it and drop the two HTML files (followers and following)
+
+All time is required. A shorter range can leave old followers out, so the lists no longer match. Repeat every few weeks to build a history.
 
 ## Running it locally
 

@@ -59,6 +59,8 @@ describe('the app shell', () => {
     await mount();
     expect(container.textContent).toContain('Drop your Instagram export here');
     expect(container.textContent).toContain('How to get your export');
+    expect(container.textContent).toContain('Followers and following');
+    expect(container.textContent).toContain('All time');
   });
 
   it('opens every tab without crashing', async () => {

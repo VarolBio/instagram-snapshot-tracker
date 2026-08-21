@@ -48,10 +48,9 @@ export function UploadDropzone({
         {busy ? 'Reading your export…' : 'Drop your Instagram export here'}
       </p>
       <p className="mx-auto mt-2 max-w-lg text-sm text-ink-400">
-        The whole <code className="text-ink-300">.zip</code> works, or just the{' '}
-        <code className="text-ink-300">followers_1.html</code> and{' '}
-        <code className="text-ink-300">following.html</code> files from inside{' '}
-        <code className="text-ink-300">connections/followers_and_following/</code>.
+        Drop the ZIP, or unzip it and drop the two HTML files:{' '}
+        <code className="text-ink-300">followers</code> and{' '}
+        <code className="text-ink-300">following</code>.
       </p>
 
       <button

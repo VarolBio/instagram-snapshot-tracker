@@ -147,24 +147,35 @@ function HowToExport() {
   return (
     <Card className="p-5">
       <SectionTitle>How to get your export</SectionTitle>
-      <ol className="list-decimal space-y-2 pl-5 text-sm text-ink-400">
+      <ol className="list-decimal space-y-3 pl-5 text-sm leading-relaxed text-ink-400">
         <li>
-          In the Instagram app, open <strong className="text-ink-200">Accounts Centre</strong> &rarr;{' '}
+          Instagram &rarr; <strong className="text-ink-200">Settings</strong> &rarr;{' '}
+          <strong className="text-ink-200">Accounts Centre</strong> &rarr;{' '}
           <strong className="text-ink-200">Your information and permissions</strong> &rarr;{' '}
-          <strong className="text-ink-200">Download your information</strong>.
+          <strong className="text-ink-200">Export your information</strong> &rarr;{' '}
+          <strong className="text-ink-200">Create export</strong> &rarr;{' '}
+          <strong className="text-ink-200">Export to device</strong>
         </li>
         <li>
-          Choose <strong className="text-ink-200">Some of your information</strong> and select only{' '}
-          <strong className="text-ink-200">Followers and following</strong> under Connections. The
-          export arrives far faster that way.
+          Customise information: tick only{' '}
+          <strong className="text-ink-200">Followers and following</strong>
         </li>
         <li>
-          Set the date range to <strong className="text-ink-200">All time</strong> and the format to{' '}
-          <strong className="text-ink-200">HTML</strong>.
+          Date range: <strong className="text-ink-200">All time</strong>. Format:{' '}
+          <strong className="text-ink-200">HTML</strong>
         </li>
-        <li>Instagram emails you a download link, usually within a few minutes.</li>
-        <li>Drop the ZIP straight in above. Repeat every few weeks to build up a history.</li>
+        <li>Start export. Instagram will give you a ZIP on the device, or by email.</li>
+        <li>
+          Drop the ZIP in above, or unzip it and drop the two HTML files (
+          <strong className="text-ink-200">followers</strong> and{' '}
+          <strong className="text-ink-200">following</strong>). Repeat every few weeks to build a
+          history.
+        </li>
       </ol>
+      <p className="mt-4 text-xs text-ink-500">
+        All time is required. A shorter range can leave old followers out, so the lists no longer
+        match.
+      </p>
     </Card>
   );
 }

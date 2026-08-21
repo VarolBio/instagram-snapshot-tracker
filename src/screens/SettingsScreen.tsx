@@ -189,14 +189,14 @@ function KeywordEditor({
               className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
               title={words.join(', ')}
             >
-              {group}: {words.join(', ')}
+              {group} · {words.length}
             </span>
           ))}
           <span
             className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
             title={RECOMMENDED_BRAND_SUFFIXES.join(', ')}
           >
-            Domains: {RECOMMENDED_BRAND_SUFFIXES.join(', ')}
+            Domains · {RECOMMENDED_BRAND_SUFFIXES.length}
           </span>
         </div>
 
@@ -205,7 +205,7 @@ function KeywordEditor({
           <TextArea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            rows={12}
+          rows={16}
             spellCheck={false}
             className="mt-1"
           />
