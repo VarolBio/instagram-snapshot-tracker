@@ -29,8 +29,8 @@ export interface ParsedKeywordList {
 
 /**
  * Turns a textarea into a keyword list. Commas, spaces and line breaks all separate
- * terms. Duplicates are dropped. Fragments shorter than 3 characters (2 for ".xx"
- * suffixes) are ignored rather than silently matching inside ordinary names.
+ * terms. Duplicates are dropped. Fragments shorter than 3 characters are ignored, except
+ * "tv", which is kept and matched only as a suffix.
  */
 export function parseKeywordList(text: string): ParsedKeywordList {
   const seen = new Set<string>();
@@ -54,6 +54,7 @@ export function parseKeywordList(text: string): ParsedKeywordList {
 
 export function isUsableKeyword(term: string): boolean {
   if (term.startsWith('.')) return term.length >= 3;
+  if (term === 'tv') return true;
   return term.length >= 3;
 }
 
@@ -91,6 +92,10 @@ export function suggestCategory(
 
 function matchesTerm(handle: string, term: string): boolean {
   if (term.startsWith('.')) return handle.endsWith(term) || handle.includes(term);
+  // Two-letter terms like "tv" only count at the end of a handle ("failtv"), never inside it.
+  if (term.length <= 2) {
+    return handle === term || handle.endsWith(term);
+  }
   return handle.includes(term);
 }
 

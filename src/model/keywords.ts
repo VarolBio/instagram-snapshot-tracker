@@ -7,7 +7,18 @@
  */
 
 export const RECOMMENDED_BRAND_KEYWORD_GROUPS: Record<string, readonly string[]> = {
-  Commerce: ['shop', 'store', 'market', 'boutique', 'brand', 'outlet'],
+  Commerce: [
+    'shop',
+    'store',
+    'market',
+    'boutique',
+    'brand',
+    'outlet',
+    'sale',
+    'retail',
+    'limited',
+    'corp',
+  ],
   Organisation: [
     'official',
     'agency',
@@ -17,11 +28,37 @@ export const RECOMMENDED_BRAND_KEYWORD_GROUPS: Record<string, readonly string[]>
     'federation',
     'foundation',
     'society',
+    'club',
+    'group',
+    'holding',
+    'organization',
+    'collective',
+    'education',
+    'university',
+    'legal',
+    'firm',
+    'volunteer',
+    'work',
+    'page',
   ],
   Venue: ['cafe', 'coffee', 'restaurant', 'kitchen', 'bakery', 'hotel', 'clinic', 'fitness'],
-  Media: ['media', 'news', 'magazine', 'records', 'podcast', 'blog', 'daily', 'press'],
+  Media: [
+    'media',
+    'news',
+    'magazine',
+    'records',
+    'podcast',
+    'blog',
+    'daily',
+    'press',
+    'quotes',
+    'reddit',
+    'memes',
+    // Suffix-only match: "failtv" yes, "activist" no. See matchesTerm.
+    'tv',
+  ],
   Creative: ['photography', 'photographer', 'design', 'designs', 'atelier'],
-  Events: ['festival', 'fest', 'events', 'expo', 'summit', 'conference'],
+  Events: ['festival', 'fest', 'event', 'events', 'expo', 'summit', 'conference'],
 };
 
 /** Suffixes that read as a domain name rather than a person. */
@@ -33,6 +70,8 @@ export const RECOMMENDED_BRAND_SUFFIXES: readonly string[] = [
   '.org',
   '.app',
   '.tr',
+  '.edu',
+  '.tv',
 ];
 
 export const RECOMMENDED_BRAND_KEYWORDS: readonly string[] = [

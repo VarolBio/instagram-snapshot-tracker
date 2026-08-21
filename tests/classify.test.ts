@@ -24,7 +24,7 @@ describe('suggesting which accounts are organisations', () => {
   });
 
   it('flags handles that read like a web address', () => {
-    const suggestion = suggestCategory('journalclub.io');
+    const suggestion = suggestCategory('journal.io');
     expect(suggestion?.matched).toBe('.io');
     expect(suggestion?.suggested).toBe('business');
   });
@@ -85,6 +85,7 @@ describe('suggesting which accounts are organisations', () => {
   it('keeps every recommended keyword long enough not to fire inside ordinary names', () => {
     for (const [group, words] of Object.entries(RECOMMENDED_BRAND_KEYWORD_GROUPS)) {
       for (const word of words) {
+        if (word === 'tv') continue;
         expect(word.length, `${group}/${word}`).toBeGreaterThanOrEqual(4);
       }
     }
@@ -94,6 +95,20 @@ describe('suggesting which accounts are organisations', () => {
     for (const handle of ['nicole.b', 'martina', 'marco', 'tvorozhkov', 'artem']) {
       expect(suggestCategory(handle), handle).toBeNull();
     }
+  });
+
+  it('matches tv only as a suffix', () => {
+    expect(suggestCategory('failtv')?.matched).toBe('tv');
+    expect(suggestCategory('best.tv')?.matched).toBe('.tv');
+    expect(suggestCategory('activist')).toBeNull();
+  });
+
+  it('picks up the newly added organisation words', () => {
+    expect(suggestCategory('campusuniversity')?.matched).toBe('university');
+    expect(suggestCategory('dept.edu')?.matched).toBe('.edu');
+    expect(suggestCategory('runnersclub')?.matched).toBe('club');
+    expect(suggestCategory('thedailyhub')?.matched).toBe('daily');
+    expect(suggestCategory('startupholding')?.matched).toBe('holding');
   });
 });
 
@@ -107,8 +122,8 @@ describe('editing the keyword list', () => {
   });
 
   it('ignores fragments that would match inside ordinary names', () => {
-    expect(parseKeywordList('co art tv official').ignored).toEqual(['co', 'tv']);
-    expect(parseKeywordList('co art tv official').keywords).toEqual(['art', 'official']);
+    expect(parseKeywordList('co art tv official').ignored).toEqual(['co']);
+    expect(parseKeywordList('co art tv official').keywords).toEqual(['art', 'tv', 'official']);
   });
 
   it('treats the recommended list as equal to itself regardless of order', () => {

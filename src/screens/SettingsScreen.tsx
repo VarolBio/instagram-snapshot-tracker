@@ -176,8 +176,10 @@ function KeywordEditor({
       <Card className="space-y-4 p-5">
         <p className="text-sm text-ink-400">
           Usernames are matched against these fragments, entirely in this browser. A hit is a
-          suggestion to mark the account as a brand, never an automatic classification. Short
-          words (under 3 characters) are ignored so they cannot hide inside ordinary names.
+          suggestion to mark the account as a brand, never an automatic classification. Words
+          under 3 characters are ignored, except tv, which only matches at the end of a
+          username. If you saved an older list, use Reset to recommended to pick up the new
+          words.
         </p>
 
         <div className="flex flex-wrap gap-2">
