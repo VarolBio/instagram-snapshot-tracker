@@ -13,8 +13,8 @@ import {
 describe('suggesting which accounts are organisations', () => {
   it('flags handles that read like a business', () => {
     for (const handle of [
-      'istanbulcoffeefestival',
-      'tosfedofficial',
+      'citycoffeefestival',
+      'sportsfedofficial',
       'somebrand.store',
       'thedailypress',
       'ateliermarie',
