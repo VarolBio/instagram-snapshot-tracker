@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { sortSnapshots } from '../analysis/currentState';
 import { renameKey } from '../analysis/rename';
+import { detectLocale, getLocale, setLocale, t } from '../i18n';
 import {
   DEFAULT_SETTINGS,
   type AccountCategory,
@@ -24,7 +25,6 @@ export type DuplicateKind = 'identical' | 'same-day';
 export interface DuplicateWarning {
   kind: DuplicateKind;
   existing: Snapshot;
-  message: string;
 }
 
 interface StoreValue {
@@ -68,13 +68,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         setSnapshots(sortSnapshots(data.snapshots));
         setSettings(data.settings);
+        setLocale(data.settings.locale);
       })
       .catch((error: unknown) => {
         if (cancelled) return;
         setPersistenceError(
-          `Saved data could not be opened, so this session will not be remembered. ${
-            error instanceof Error ? error.message : String(error)
-          }`,
+          t('app.persistenceError', {
+            detail: error instanceof Error ? error.message : String(error),
+          }),
         );
       })
       .finally(() => {
@@ -86,6 +87,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const persistSettings = useCallback(async (next: AppSettings) => {
+    setLocale(next.locale);
     setSettings(next);
     await repo.saveSettings(next);
   }, []);
@@ -171,34 +173,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       },
 
       async wipe() {
+        const next = { ...DEFAULT_SETTINGS, locale: detectLocale() };
         setSnapshots([]);
-        setSettings(DEFAULT_SETTINGS);
+        setSettings(next);
+        setLocale(next.locale);
         await repo.deleteEverything();
       },
 
       async restore(data) {
+        const locale = data.settings.locale ?? detectLocale();
+        const settings = { ...data.settings, locale };
         setSnapshots(sortSnapshots(data.snapshots));
-        setSettings(data.settings);
-        await repo.replaceAll(data);
+        setSettings(settings);
+        setLocale(locale);
+        await repo.replaceAll({ ...data, settings });
       },
 
       checkDuplicate(parsed) {
         const identical = snapshots.find((s) => s.contentHash === parsed.contentHash);
         if (identical) {
-          return {
-            kind: 'identical',
-            existing: identical,
-            message: `This export contains exactly the same accounts as "${identical.label}". Saving it again adds no new information.`,
-          };
+          return { kind: 'identical', existing: identical };
         }
 
         const sameDay = snapshots.find((s) => isSameDay(s.exportedAt, parsed.exportedAt));
         if (sameDay) {
-          return {
-            kind: 'same-day',
-            existing: sameDay,
-            message: `"${sameDay.label}" was exported on the same day but contains different accounts. Check you are not uploading a partial export.`,
-          };
+          return { kind: 'same-day', existing: sameDay };
         }
 
         return null;
@@ -217,8 +216,9 @@ export function useStore(): StoreValue {
 
 export function defaultLabel(exportedAt: string): string {
   const date = new Date(exportedAt);
-  if (Number.isNaN(date.getTime())) return 'Untitled snapshot';
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  if (Number.isNaN(date.getTime())) return t('upload.untitled');
+  const tag = getLocale() === 'tr' ? 'tr-TR' : 'en-GB';
+  return date.toLocaleDateString(tag, { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 function isSameDay(a: string, b: string): boolean {

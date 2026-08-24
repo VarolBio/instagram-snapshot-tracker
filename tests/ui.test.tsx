@@ -8,6 +8,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { App } from '../src/App';
+import { setLocale } from '../src/i18n';
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -22,6 +23,9 @@ async function mount() {
   await act(async () => {
     root.render(<App />);
   });
+  await act(async () => {
+    await Promise.resolve();
+  });
 }
 
 async function clickTab(label: string) {
@@ -35,6 +39,7 @@ async function clickTab(label: string) {
 }
 
 beforeEach(() => {
+  setLocale('en');
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);

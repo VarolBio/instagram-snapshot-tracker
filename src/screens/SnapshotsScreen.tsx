@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button, Callout, Card, EmptyState, SectionTitle, TextInput } from '../components/ui';
+import { formatParseWarning, t } from '../i18n';
 import { formatCount, formatDate, formatDateTime } from '../lib/format';
-import { RELATION_LABELS, type Snapshot } from '../model/types';
+import { type Snapshot } from '../model/types';
 import { useStore } from '../state/store';
 
 export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
@@ -13,29 +14,26 @@ export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
   if (snapshots.length === 0) {
     return (
       <EmptyState
-        title="No snapshots yet"
+        title={t('snapshots.emptyTitle')}
         action={
           <Button variant="primary" onClick={onUpload}>
-            Upload your first export
+            {t('snapshots.uploadFirst')}
           </Button>
         }
       >
-        Your first upload becomes the baseline. Comparisons appear once you add a second one.
+        {t('snapshots.emptyBody')}
       </EmptyState>
     );
   }
 
   return (
     <div className="space-y-4">
-      <SectionTitle hint={`${formatCount(snapshots.length)} saved, oldest first`}>
-        Snapshots
+      <SectionTitle hint={t('snapshots.saved', { count: formatCount(snapshots.length) })}>
+        {t('snapshots.title')}
       </SectionTitle>
 
       {snapshots.length === 1 ? (
-        <Callout tone="neutral">
-          One snapshot is a baseline, not a comparison. Upload another export in a few weeks to see
-          what changed.
-        </Callout>
+        <Callout tone="neutral">{t('snapshots.oneBaseline')}</Callout>
       ) : null}
 
       <ul className="space-y-3">
@@ -59,18 +57,20 @@ export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
                         setEditing(null);
                       }}
                     >
-                      Save
+                      {t('snapshots.save')}
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>
-                      Cancel
+                      {t('snapshots.cancel')}
                     </Button>
                   </div>
                 ) : (
                   <h3 className="text-base font-semibold text-ink-50">{snapshot.label}</h3>
                 )}
                 <p className="mt-1 text-xs text-ink-500">
-                  Exported {formatDate(snapshot.exportedAt)} &middot; imported{' '}
-                  {formatDateTime(snapshot.importedAt)}
+                  {t('snapshots.exportedImported', {
+                    exported: formatDate(snapshot.exportedAt),
+                    imported: formatDateTime(snapshot.importedAt),
+                  })}
                   {snapshot.generatedBy ? ` \u00b7 @${snapshot.generatedBy}` : ''}
                 </p>
               </div>
@@ -85,7 +85,7 @@ export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
                       setDraft(snapshot.label);
                     }}
                   >
-                    Rename
+                    {t('snapshots.rename')}
                   </Button>
                 )}
                 {confirming === snapshot.id ? (
@@ -98,15 +98,15 @@ export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
                         setConfirming(null);
                       }}
                     >
-                      Really delete
+                      {t('snapshots.reallyDelete')}
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => setConfirming(null)}>
-                      Cancel
+                      {t('snapshots.cancel')}
                     </Button>
                   </>
                 ) : (
                   <Button size="sm" variant="danger" onClick={() => setConfirming(snapshot.id)}>
-                    Delete
+                    {t('snapshots.delete')}
                   </Button>
                 )}
               </div>
@@ -115,7 +115,7 @@ export function SnapshotsScreen({ onUpload }: { onUpload: () => void }) {
             <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 border-t border-ink-800 pt-3 text-sm">
               {snapshot.kindsPresent.map((kind) => (
                 <div key={kind} className="flex gap-2">
-                  <dt className="text-ink-500">{RELATION_LABELS[kind]}</dt>
+                  <dt className="text-ink-500">{t(`relation.${kind}`)}</dt>
                   <dd className="font-medium text-ink-200">
                     {formatCount(snapshot.observations.filter((o) => o.kind === kind).length)}
                   </dd>
@@ -140,39 +140,43 @@ function Coverage({ snapshot }: { snapshot: Snapshot }) {
     <div className="mt-3 space-y-2">
       {snapshot.coverage ? (
         <p className="text-xs text-ink-500">
-          Instagram states this export covers {formatDate(snapshot.coverage.from)} to{' '}
-          {formatDate(snapshot.coverage.to)}.
+          {t('snapshots.coverage', {
+            from: formatDate(snapshot.coverage.from),
+            to: formatDate(snapshot.coverage.to),
+          })}
         </p>
       ) : null}
 
       {missing ? (
         <Callout tone="warning">
-          This snapshot has no {!hasFollowers ? 'followers' : 'following'} list. Comparisons will
-          skip that list rather than report everyone in it as gone.
+          {t(hasFollowers ? 'snapshots.missingFollowing' : 'snapshots.missingFollowers')}
         </Callout>
       ) : null}
 
       {snapshot.warnings.length > 0 ? (
         <details className="text-xs text-ink-500">
           <summary className="cursor-pointer hover:text-ink-300">
-            {formatCount(snapshot.warnings.length)} parsing note
-            {snapshot.warnings.length === 1 ? '' : 's'}
+            {t(
+              snapshot.warnings.length === 1 ? 'snapshots.parsingNote' : 'snapshots.parsingNotes',
+              { count: formatCount(snapshot.warnings.length) },
+            )}
           </summary>
           <ul className="mt-2 list-disc space-y-1 pl-4">
             {snapshot.warnings.map((warning, i) => (
-              <li key={`${warning.code}-${i}`}>{warning.message}</li>
+              <li key={`${warning.code}-${i}`}>{formatParseWarning(warning)}</li>
             ))}
           </ul>
         </details>
       ) : null}
 
       <details className="text-xs text-ink-500">
-        <summary className="cursor-pointer hover:text-ink-300">Source files</summary>
+        <summary className="cursor-pointer hover:text-ink-300">{t('snapshots.sourceFiles')}</summary>
         <ul className="mt-2 space-y-1">
           {snapshot.sourceFiles.map((file) => (
             <li key={file.path} className="font-mono break-all">
-              {file.path} &rarr; {file.kind === 'unmatched' ? 'ignored' : RELATION_LABELS[file.kind]}{' '}
-              ({formatCount(file.entryCount)})
+              {file.path} &rarr;{' '}
+              {file.kind === 'unmatched' ? t('snapshots.ignored') : t(`relation.${file.kind}`)} (
+              {formatCount(file.entryCount)})
             </li>
           ))}
         </ul>

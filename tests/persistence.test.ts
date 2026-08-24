@@ -100,6 +100,7 @@ describe('settings', () => {
     hideNonPersonalInNonFollowers: true,
     brandKeywords: ['shop'],
     dismissedKeywordSuggestions: ['notabrand'],
+    locale: 'en',
   };
 
   it('survives a reload', async () => {
@@ -129,6 +130,7 @@ describe('restoring a backup', () => {
         hideNonPersonalInNonFollowers: false,
         brandKeywords: [],
         dismissedKeywordSuggestions: [],
+        locale: 'en',
       },
     });
 
@@ -147,6 +149,7 @@ describe('deleting everything', () => {
       hideNonPersonalInNonFollowers: true,
       brandKeywords: ['shop'],
       dismissedKeywordSuggestions: [],
+      locale: 'en',
     });
 
     await deleteEverything();

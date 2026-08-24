@@ -107,6 +107,46 @@ describe('suggesting which accounts are organisations', () => {
     expect(suggestCategory('activist')).toBeNull();
   });
 
+  it('folds Turkish letters so kültür matches kultur and atatürk matches ataturk', () => {
+    expect(suggestCategory('kulturpage', ['kültür'])?.matched).toBe('kültür');
+    expect(suggestCategory('kültürpage', ['kultur'])?.matched).toBe('kultur');
+    expect(suggestCategory('ataturkmuze', ['atatürk'])?.matched).toBe('atatürk');
+    expect(suggestCategory('atatürkmüze')?.matched).toMatch(/ataturk|atatürk|muze|müze/);
+  });
+
+  it('keeps noisy shorts out of the recommended list', () => {
+    const present = new Set(RECOMMENDED_BRAND_KEYWORDS);
+    for (const word of ['sol', 'son', 'art', 'sine', 'cine', 'uni', 'edu', 'milli', 'rock', 'union', 'univ']) {
+      expect(present.has(word), word).toBe(false);
+    }
+    expect(present.has('.edu')).toBe(true);
+  });
+
+  it('includes the pasted compact terms people actually use in handles', () => {
+    const present = new Set(RECOMMENDED_BRAND_KEYWORDS);
+    for (const word of [
+      'tarih',
+      'haber',
+      '9gag',
+      '1907',
+      '1905',
+      '1903',
+      'manutd',
+      'mancity',
+      'akademi',
+      'psikolog',
+      'kültür',
+      'kultur',
+      'üniversite',
+      'universite',
+      'ataturk',
+      'futbol',
+      'sondakika',
+    ]) {
+      expect(present.has(word), word).toBe(true);
+    }
+  });
+
   it('picks up organisation, place and club words', () => {
     expect(suggestCategory('campusuniversity')?.matched).toBe('university');
     expect(suggestCategory('dept.edu')?.matched).toBe('.edu');

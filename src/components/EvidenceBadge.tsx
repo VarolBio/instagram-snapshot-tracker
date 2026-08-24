@@ -1,4 +1,5 @@
-import { EVIDENCE_META, type EvidenceLevel } from '../model/evidence';
+import { evidenceMeta, type EvidenceLevel } from '../model/evidence';
+import { t } from '../i18n';
 import { cx } from './ui';
 
 const TONES = {
@@ -8,9 +9,17 @@ const TONES = {
   warning: 'border-rose-500/40 bg-rose-500/10 text-rose-200',
 };
 
+const LEVELS: EvidenceLevel[] = [
+  'confirmed_by_export',
+  'likely_change',
+  'possible_rename',
+  'possibly_unavailable',
+  'insufficient_evidence',
+];
+
 export function EvidenceBadge({ level, short }: { level: EvidenceLevel; short?: boolean }) {
-  const meta = EVIDENCE_META[level];
-  const label = short && level === 'possibly_unavailable' ? 'Cause unknown' : meta.label;
+  const meta = evidenceMeta(level);
+  const label = short && level === 'possibly_unavailable' ? t('evidence.possibly_unavailable.short') : meta.label;
 
   return (
     <span
@@ -25,18 +34,20 @@ export function EvidenceBadge({ level, short }: { level: EvidenceLevel; short?: 
   );
 }
 
-/** The full glossary, shown wherever a reader may not know what the badges mean. */
 export function EvidenceLegend() {
   return (
     <dl className="space-y-3">
-      {Object.entries(EVIDENCE_META).map(([level, meta]) => (
-        <div key={level} className="flex flex-col gap-1 sm:flex-row sm:gap-3">
-          <dt className="sm:w-64 sm:shrink-0">
-            <EvidenceBadge level={level as EvidenceLevel} />
-          </dt>
-          <dd className="text-sm text-ink-400">{meta.explanation}</dd>
-        </div>
-      ))}
+      {LEVELS.map((level) => {
+        const meta = evidenceMeta(level);
+        return (
+          <div key={level} className="flex flex-col gap-1 sm:flex-row sm:gap-3">
+            <dt className="sm:w-64 sm:shrink-0">
+              <EvidenceBadge level={level} />
+            </dt>
+            <dd className="text-sm text-ink-400">{meta.explanation}</dd>
+          </div>
+        );
+      })}
     </dl>
   );
 }

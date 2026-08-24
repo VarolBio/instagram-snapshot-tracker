@@ -13,6 +13,7 @@
 
 import { RECOMMENDED_BRAND_KEYWORDS } from '../model/keywords';
 import type { AccountCategory } from '../model/types';
+import { t } from '../i18n';
 
 export interface CategorySuggestion {
   handle: string;
@@ -55,7 +56,22 @@ export function parseKeywordList(text: string): ParsedKeywordList {
 export function isUsableKeyword(term: string): boolean {
   if (term.startsWith('.')) return term.length >= 3;
   if (term === 'tv') return true;
-  return term.length >= 3;
+  return foldTurkish(term).length >= 3;
+}
+
+/** Instagram handles are ASCII, so ı/ş/ğ/ü/ö/ç are folded to i/s/g/u/o/c before matching. */
+export function foldTurkish(value: string): string {
+  return value
+    .toLowerCase()
+    .replaceAll('ç', 'c')
+    .replaceAll('ğ', 'g')
+    .replaceAll('ı', 'i')
+    .replaceAll('ö', 'o')
+    .replaceAll('ş', 's')
+    .replaceAll('ü', 'u')
+    .replaceAll('â', 'a')
+    .replaceAll('î', 'i')
+    .replaceAll('û', 'u');
 }
 
 export function keywordsEqual(a: readonly string[], b: readonly string[]): boolean {
@@ -74,11 +90,11 @@ export function suggestCategory(
   handle: string,
   keywords: readonly string[] = RECOMMENDED_BRAND_KEYWORDS,
 ): CategorySuggestion | null {
-  const lower = handle.toLowerCase();
-  const ranked = [...keywords].sort((a, b) => b.length - a.length);
+  const foldedHandle = foldTurkish(handle);
+  const ranked = [...keywords].sort((a, b) => foldTurkish(b).length - foldTurkish(a).length);
 
   for (const term of ranked) {
-    if (!matchesTerm(lower, term)) continue;
+    if (!matchesTerm(foldedHandle, term)) continue;
     return {
       handle,
       suggested: 'business',
@@ -90,20 +106,21 @@ export function suggestCategory(
   return null;
 }
 
-function matchesTerm(handle: string, term: string): boolean {
-  if (term.startsWith('.')) return handle.endsWith(term) || handle.includes(term);
+function matchesTerm(foldedHandle: string, term: string): boolean {
+  const foldedTerm = foldTurkish(term);
+  if (term.startsWith('.')) return foldedHandle.endsWith(foldedTerm) || foldedHandle.includes(foldedTerm);
   // Two-letter terms like "tv" only count at the end of a handle ("failtv"), never inside it.
-  if (term.length <= 2) {
-    return handle === term || handle.endsWith(term);
+  if (foldedTerm.length <= 2) {
+    return foldedHandle === foldedTerm || foldedHandle.endsWith(foldedTerm);
   }
-  return handle.includes(term);
+  return foldedHandle.includes(foldedTerm);
 }
 
 function describeMatch(term: string): string {
   if (term.startsWith('.')) {
-    return `The username contains "${term}", which reads like a web address rather than a person's name.`;
+    return t('classify.domain', { term });
   }
-  return `The username contains "${term}", which usually belongs to a business or organisation.`;
+  return t('classify.word', { term });
 }
 
 export interface SuggestionSummary {

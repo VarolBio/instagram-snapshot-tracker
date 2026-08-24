@@ -73,16 +73,17 @@ export async function collectFiles(inputs: File[]): Promise<CollectResult> {
         }
         if (Object.keys(entries).length === 0) {
           warnings.push({
-            code: 'unreadable_file',
+            code: 'zip_no_html',
             message: `${input.name} contains no HTML files. If you exported in JSON format, re-request the export in HTML.`,
             path: input.name,
           });
         }
       } catch (error) {
         warnings.push({
-          code: 'unreadable_file',
+          code: 'zip_unreadable',
           message: `Could not read ${input.name} as a ZIP archive: ${errorText(error)}`,
           path: input.name,
+          params: { detail: errorText(error) },
         });
       }
       continue;
@@ -90,7 +91,7 @@ export async function collectFiles(inputs: File[]): Promise<CollectResult> {
 
     if (!isHtml(input.name)) {
       warnings.push({
-        code: 'unmatched_file',
+        code: 'skipped_file_type',
         message: `Skipped ${input.name}: only .html files and .zip archives are read.`,
         path: input.name,
       });
@@ -107,9 +108,10 @@ export async function collectFiles(inputs: File[]): Promise<CollectResult> {
       });
     } catch (error) {
       warnings.push({
-        code: 'unreadable_file',
+        code: 'file_unreadable',
         message: `Could not read ${input.name}: ${errorText(error)}`,
         path: input.name,
+        params: { detail: errorText(error) },
       });
     }
   }

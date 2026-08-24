@@ -1,11 +1,8 @@
 import { useMemo, useState } from 'react';
 import type { AccountRow } from '../analysis/currentState';
+import { t } from '../i18n';
 import { formatCount, formatDate } from '../lib/format';
-import {
-  ACCOUNT_CATEGORY_LABELS,
-  type AccountCategory,
-  type AccountClassification,
-} from '../model/types';
+import { type AccountCategory, type AccountClassification } from '../model/types';
 import { Card, Checkbox, EmptyState, Select, TextInput, cx } from './ui';
 
 type SortKey = 'handle' | 'followedYouAt' | 'youFollowedAt';
@@ -69,28 +66,28 @@ export function AccountTable({
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search usernames"
-          aria-label="Search usernames"
+          placeholder={t('table.search')}
+          aria-label={t('table.search')}
           className="min-w-52 flex-1"
         />
         <Select
           value={sort}
           onChange={(e) => setSort(e.target.value as SortKey)}
-          aria-label="Sort by"
+          aria-label={t('table.sort')}
         >
-          <option value="handle">Sort: username</option>
-          <option value="followedYouAt">Sort: newest to follow you</option>
-          <option value="youFollowedAt">Sort: most recently followed by you</option>
+          <option value="handle">{t('table.sortHandle')}</option>
+          <option value="followedYouAt">{t('table.sortFollowedYou')}</option>
+          <option value="youFollowedAt">{t('table.sortYouFollowed')}</option>
         </Select>
         <Select
           value={category}
           onChange={(e) => setCategory(e.target.value as AccountCategory | 'all')}
-          aria-label="Filter by category"
+          aria-label={t('table.filterCategory')}
         >
-          <option value="all">All categories</option>
+          <option value="all">{t('table.allCategories')}</option>
           {CATEGORY_ORDER.map((c) => (
             <option key={c} value={c}>
-              {ACCOUNT_CATEGORY_LABELS[c]}
+              {t(`category.${c}`)}
             </option>
           ))}
         </Select>
@@ -98,7 +95,7 @@ export function AccountTable({
           <Checkbox
             checked={hideNonPersonal ?? false}
             onChange={onHideNonPersonalChange}
-            label="Hide accounts I marked as creators or brands"
+            label={t('table.hideNonPersonal')}
           />
         ) : null}
       </div>
@@ -108,18 +105,18 @@ export function AccountTable({
       ) : (
         <>
           <p className="text-xs text-ink-500">
-            Showing {formatCount(visible.length)} of {formatCount(rows.length)}
+            {t('table.showing', { visible: formatCount(visible.length), total: formatCount(rows.length) })}
           </p>
           <Card className="overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[46rem] text-sm">
                 <thead>
                   <tr className="border-b border-ink-800 text-left text-xs tracking-wide text-ink-400 uppercase">
-                    <th className="px-4 py-2 font-medium">Account</th>
-                    <th className="px-4 py-2 font-medium">Relationship</th>
-                    <th className="px-4 py-2 font-medium">They followed you</th>
-                    <th className="px-4 py-2 font-medium">You followed them</th>
-                    <th className="px-4 py-2 font-medium">Category</th>
+                    <th className="px-4 py-2 font-medium">{t('table.account')}</th>
+                    <th className="px-4 py-2 font-medium">{t('table.relationship')}</th>
+                    <th className="px-4 py-2 font-medium">{t('table.theyFollowed')}</th>
+                    <th className="px-4 py-2 font-medium">{t('table.youFollowed')}</th>
+                    <th className="px-4 py-2 font-medium">{t('table.category')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,7 +126,7 @@ export function AccountTable({
                         <button
                           onClick={() => onOpenAccount(row.handle)}
                           className="font-medium text-ink-100 hover:text-violet-300 hover:underline"
-                          title="Open this account's timeline"
+                          title={t('table.openTimeline')}
                         >
                           @{row.displayHandle}
                         </button>
@@ -147,12 +144,12 @@ export function AccountTable({
                         <Select
                           value={classifications[row.handle]?.category ?? 'unknown'}
                           onChange={(e) => onClassify(row.handle, e.target.value as AccountCategory)}
-                          aria-label={`Category for ${row.handle}`}
+                          aria-label={t('table.categoryFor', { handle: row.handle })}
                           className="py-1 text-xs"
                         >
                           {CATEGORY_ORDER.map((c) => (
                             <option key={c} value={c}>
-                              {ACCOUNT_CATEGORY_LABELS[c]}
+                              {t(`category.${c}`)}
                             </option>
                           ))}
                         </Select>
@@ -172,10 +169,10 @@ export function AccountTable({
 function Relationship({ row }: { row: AccountRow }) {
   const [text, tone] =
     row.isFollower && row.isFollowing
-      ? ['Mutual', 'text-emerald-300']
+      ? [t('table.mutual'), 'text-emerald-300']
       : row.isFollowing
-        ? ['You follow them', 'text-amber-300']
-        : ['They follow you', 'text-sky-300'];
+        ? [t('table.youFollowThem'), 'text-amber-300']
+        : [t('table.theyFollowYou'), 'text-sky-300'];
   return <span className={cx('text-xs font-medium', tone)}>{text}</span>;
 }
 
@@ -187,7 +184,7 @@ export function OpenProfileLink({ handle }: { handle: string }) {
       rel="noreferrer noopener"
       className="inline-flex items-center rounded-lg border border-ink-700 px-2.5 py-1 text-xs font-medium text-ink-200 hover:border-ink-600 hover:text-ink-50"
     >
-      Open on Instagram
+      {t('table.openInstagram')}
     </a>
   );
 }

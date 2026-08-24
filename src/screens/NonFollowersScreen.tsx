@@ -3,6 +3,7 @@ import { suggestForAll } from '../analysis/classify';
 import { buildCurrentState, nonFollowers } from '../analysis/currentState';
 import { AccountTable } from '../components/AccountTable';
 import { Button, Callout, Card, EmptyState, StatCard } from '../components/ui';
+import { t, useI18n } from '../i18n';
 import { formatCount, formatDate } from '../lib/format';
 import { useStore } from '../state/store';
 
@@ -13,6 +14,7 @@ export function NonFollowersScreen({
   onOpenAccount: (handle: string) => void;
   onUpload: () => void;
 }) {
+  const { locale } = useI18n();
   const { snapshots, settings, classify, classifyMany, dismissKeywordSuggestions, updateSettings } =
     useStore();
   const snapshot = snapshots.at(-1);
@@ -37,30 +39,33 @@ export function NonFollowersScreen({
           dismissed,
         },
       ),
-    [rows, settings.brandKeywords, settings.classifications, dismissed],
+    [rows, settings.brandKeywords, settings.classifications, dismissed, locale],
   );
 
   if (!snapshot) {
     return (
       <EmptyState
-        title="Nothing to compare yet"
+        title={t('nonFollowers.emptyTitle')}
         action={
           <Button variant="primary" onClick={onUpload}>
-            Upload an export
+            {t('current.upload')}
           </Button>
         }
       >
-        Upload an export to see which accounts you follow do not follow you back.
+        {t('nonFollowers.emptyBody')}
       </EmptyState>
     );
   }
 
   if (!snapshot.kindsPresent.includes('follower') || !snapshot.kindsPresent.includes('following')) {
     return (
-      <Callout tone="warning" title="This needs both lists">
-        Your newest snapshot ("{snapshot.label}") is missing{' '}
-        {snapshot.kindsPresent.includes('follower') ? 'the following list' : 'the followers list'}.
-        Working out who does not follow back requires comparing the two against each other.
+      <Callout tone="warning" title={t('nonFollowers.needsBoth')}>
+        {t('nonFollowers.needsBothBody', {
+          label: snapshot.label,
+          missing: snapshot.kindsPresent.includes('follower')
+            ? t('nonFollowers.missingFollowing')
+            : t('nonFollowers.missingFollowers'),
+        })}
       </Callout>
     );
   }
@@ -74,28 +79,28 @@ export function NonFollowersScreen({
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard
-          label="Do not follow you back"
+          label={t('nonFollowers.statLabel')}
           value={formatCount(rows.length)}
-          hint={`From "${snapshot.label}", ${formatDate(snapshot.exportedAt)}`}
+          hint={t('nonFollowers.fromSnapshot', {
+            label: snapshot.label,
+            date: formatDate(snapshot.exportedAt),
+          })}
           accent="amber"
         />
         <StatCard
-          label="You have classified"
-          value={`${formatCount(classified)} of ${formatCount(rows.length)}`}
-          hint="Categories are yours alone and never leave this browser"
+          label={t('nonFollowers.classified')}
+          value={`${formatCount(classified)} / ${formatCount(rows.length)}`}
+          hint={t('nonFollowers.classifiedHint')}
         />
         <StatCard
-          label="Keyword guesses"
+          label={t('nonFollowers.guesses')}
           value={formatCount(guessed.suggestions.length)}
-          hint="Usernames that look like organisations. Confirm before they count."
+          hint={t('nonFollowers.guessesHint')}
         />
       </div>
 
-      <Callout tone="neutral" title="These guesses only read the username">
-        Instagram&rsquo;s export has no follower counts, verification badges, or account types.
-        Matching words like <code className="text-ink-200">official</code> or{' '}
-        <code className="text-ink-200">.io</code> is a hint, not evidence. Confirm a guess and this
-        app treats it as a brand; leave it and nothing is assumed. Edit the word list in Settings.
+      <Callout tone="neutral" title={t('nonFollowers.guessesTitle')}>
+        {t('nonFollowers.guessesBody')}
       </Callout>
 
       {guessed.suggestions.length > 0 ? (
@@ -103,12 +108,13 @@ export function NonFollowersScreen({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold text-ink-100">
-                {formatCount(guessed.suggestions.length)} username
-                {guessed.suggestions.length === 1 ? '' : 's'} look like organisations
+                {guessed.suggestions.length === 1
+                  ? t('nonFollowers.lookLike', { count: formatCount(guessed.suggestions.length) })
+                  : t('nonFollowers.lookLikePlural', {
+                      count: formatCount(guessed.suggestions.length),
+                    })}
               </h3>
-              <p className="mt-1 text-xs text-ink-500">
-                Suggested as Business / brand. Nothing is saved until you confirm.
-              </p>
+              <p className="mt-1 text-xs text-ink-500">{t('nonFollowers.suggestedAs')}</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -121,7 +127,7 @@ export function NonFollowersScreen({
                   )
                 }
               >
-                Mark all as brands
+                {t('nonFollowers.markAll')}
               </Button>
               <Button
                 size="sm"
@@ -130,7 +136,7 @@ export function NonFollowersScreen({
                   dismissKeywordSuggestions(guessed.suggestions.map((s) => s.handle))
                 }
               >
-                Dismiss all
+                {t('nonFollowers.dismissAll')}
               </Button>
             </div>
           </div>
@@ -155,14 +161,14 @@ export function NonFollowersScreen({
                     variant="subtle"
                     onClick={() => classify(suggestion.handle, 'business')}
                   >
-                    Brand
+                    {t('nonFollowers.brand')}
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => dismissKeywordSuggestions([suggestion.handle])}
                   >
-                    Not a brand
+                    {t('nonFollowers.notBrand')}
                   </Button>
                 </div>
               </li>
@@ -170,10 +176,7 @@ export function NonFollowersScreen({
           </ul>
         </Card>
       ) : settings.brandKeywords.length === 0 ? (
-        <Callout tone="neutral">
-          Organisation guesses are off because the keyword list is empty. Add words in Settings to
-          turn them back on.
-        </Callout>
+        <Callout tone="neutral">{t('nonFollowers.guessesOff')}</Callout>
       ) : null}
 
       <AccountTable
@@ -185,8 +188,8 @@ export function NonFollowersScreen({
         onHideNonPersonalChange={(value) =>
           updateSettings({ hideNonPersonalInNonFollowers: value })
         }
-        emptyTitle="Everyone you follow follows you back"
-        emptyBody="Either that, or the current filters hide the rest."
+        emptyTitle={t('nonFollowers.emptyTableTitle')}
+        emptyBody={t('nonFollowers.emptyTableBody')}
       />
     </div>
   );

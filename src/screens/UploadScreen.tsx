@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { ParseReport } from '../components/ParseReport';
 import { UploadDropzone } from '../components/UploadDropzone';
 import { Button, Callout, Card, SectionTitle, TextInput } from '../components/ui';
+import { t } from '../i18n';
 import { formatCount } from '../lib/format';
-import { RELATION_LABELS, type ParsedSnapshot } from '../model/types';
+import type { ParsedSnapshot } from '../model/types';
 import { parseUpload } from '../parser';
 import { defaultLabel, useStore, type DuplicateWarning } from '../state/store';
 
@@ -54,7 +55,7 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
       <UploadDropzone onFiles={handleFiles} busy={busy} />
 
       {error ? (
-        <Callout tone="danger" title="That upload could not be read">
+        <Callout tone="danger" title={t('upload.couldNotRead')}>
           {error}
         </Callout>
       ) : null}
@@ -62,12 +63,12 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
       {pending ? (
         <div className="space-y-5">
           <div>
-            <SectionTitle>Snapshot summary</SectionTitle>
+            <SectionTitle>{t('upload.summary')}</SectionTitle>
             <Card className="p-4">
               <ul className="grid gap-2 sm:grid-cols-2">
                 {pending.parsed.kindsPresent.map((kind) => (
                   <li key={kind} className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="text-ink-400">{RELATION_LABELS[kind]}</span>
+                    <span className="text-ink-400">{t(`relation.${kind}`)}</span>
                     <span className="font-medium text-ink-100">
                       {formatCount(
                         pending.parsed.observations.filter((o) => o.kind === kind).length,
@@ -78,7 +79,7 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
               </ul>
               {pending.parsed.generatedBy ? (
                 <p className="mt-3 border-t border-ink-800 pt-3 text-xs text-ink-500">
-                  Generated for @{pending.parsed.generatedBy}.
+                  {t('upload.generatedFor', { handle: pending.parsed.generatedBy })}
                 </p>
               ) : null}
             </Card>
@@ -90,27 +91,26 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
             <Callout
               tone={pending.duplicate.kind === 'identical' ? 'danger' : 'warning'}
               title={
-                pending.duplicate.kind === 'identical'
-                  ? 'You have already saved this export'
-                  : 'A snapshot from this day already exists'
+                pending.duplicate.kind === 'identical' ? t('upload.alreadySaved') : t('upload.sameDay')
               }
             >
-              {pending.duplicate.message}
+              {pending.duplicate.kind === 'identical'
+                ? t('upload.duplicateIdentical', { label: pending.duplicate.existing.label })
+                : t('upload.duplicateSameDay', { label: pending.duplicate.existing.label })}
             </Callout>
           ) : null}
 
           {nothingUsable ? (
-            <Callout tone="danger" title="No accounts were found">
-              None of these files contained a followers or following list. Check that you exported
-              in HTML format and included the Connections category.
+            <Callout tone="danger" title={t('upload.noAccounts')}>
+              {t('upload.noAccountsBody')}
             </Callout>
           ) : null}
 
           <div>
-            <SectionTitle>Save this snapshot</SectionTitle>
+            <SectionTitle>{t('upload.saveTitle')}</SectionTitle>
             <Card className="flex flex-wrap items-end gap-3 p-4">
               <label className="flex flex-col gap-1 text-xs text-ink-400">
-                Name
+                {t('upload.name')}
                 <TextInput
                   value={pending.label}
                   onChange={(e) => setPending({ ...pending, label: e.target.value })}
@@ -118,7 +118,7 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
                 />
               </label>
               <label className="flex flex-col gap-1 text-xs text-ink-400">
-                Export date
+                {t('upload.exportDate')}
                 <TextInput
                   type="date"
                   value={pending.exportedAt}
@@ -127,10 +127,10 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
               </label>
               <div className="ml-auto flex gap-2">
                 <Button variant="ghost" onClick={() => setPending(null)}>
-                  Discard
+                  {t('upload.discard')}
                 </Button>
                 <Button variant="primary" onClick={save} disabled={nothingUsable}>
-                  {pending.duplicate?.kind === 'identical' ? 'Save anyway' : 'Save snapshot'}
+                  {pending.duplicate?.kind === 'identical' ? t('upload.saveAnyway') : t('upload.saveSnapshot')}
                 </Button>
               </div>
             </Card>
@@ -146,36 +146,33 @@ export function UploadScreen({ onSaved }: { onSaved: () => void }) {
 function HowToExport() {
   return (
     <Card className="p-5">
-      <SectionTitle>How to get your export</SectionTitle>
+      <SectionTitle>{t('upload.howTo')}</SectionTitle>
       <ol className="list-decimal space-y-3 pl-5 text-sm leading-relaxed text-ink-400">
         <li>
-          Instagram &rarr; <strong className="text-ink-200">Settings</strong> &rarr;{' '}
-          <strong className="text-ink-200">Accounts Centre</strong> &rarr;{' '}
-          <strong className="text-ink-200">Your information and permissions</strong> &rarr;{' '}
-          <strong className="text-ink-200">Export your information</strong> &rarr;{' '}
-          <strong className="text-ink-200">Create export</strong> &rarr;{' '}
-          <strong className="text-ink-200">Export to device</strong>
+          Instagram &rarr; <strong className="text-ink-200">{t('upload.step1Settings')}</strong> &rarr;{' '}
+          <strong className="text-ink-200">{t('upload.step1Centre')}</strong> &rarr;{' '}
+          <strong className="text-ink-200">{t('upload.step1Permissions')}</strong> &rarr;{' '}
+          <strong className="text-ink-200">{t('upload.step1Export')}</strong> &rarr;{' '}
+          <strong className="text-ink-200">{t('upload.step1Create')}</strong> &rarr;{' '}
+          <strong className="text-ink-200">{t('upload.step1Device')}</strong>
         </li>
         <li>
-          Customise information: tick only{' '}
-          <strong className="text-ink-200">Followers and following</strong>
+          {t('upload.step2Prefix')}{' '}
+          <strong className="text-ink-200">{t('upload.step2Strong')}</strong>
         </li>
         <li>
-          Date range: <strong className="text-ink-200">All time</strong>. Format:{' '}
-          <strong className="text-ink-200">HTML</strong>
+          {t('upload.step3Range')} <strong className="text-ink-200">{t('upload.step3AllTime')}</strong>.{' '}
+          {t('upload.step3Format')} <strong className="text-ink-200">{t('upload.step3Html')}</strong>
         </li>
-        <li>Start export. Instagram will give you a ZIP on the device, or by email.</li>
+        <li>{t('upload.step4')}</li>
         <li>
-          Drop the ZIP in above, or unzip it and drop the two HTML files (
-          <strong className="text-ink-200">followers</strong> and{' '}
-          <strong className="text-ink-200">following</strong>). Repeat every few weeks to build a
-          history.
+          {t('upload.step5Prefix')}
+          <strong className="text-ink-200">followers</strong> {t('upload.step5And')}{' '}
+          <strong className="text-ink-200">following</strong>
+          {t('upload.step5Suffix')}
         </li>
       </ol>
-      <p className="mt-4 text-xs text-ink-500">
-        All time is required. A shorter range can leave old followers out, so the lists no longer
-        match.
-      </p>
+      <p className="mt-4 text-xs text-ink-500">{t('upload.allTimeNote')}</p>
     </Card>
   );
 }

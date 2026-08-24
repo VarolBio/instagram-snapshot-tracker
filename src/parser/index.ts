@@ -54,6 +54,7 @@ export function parseRawFiles(files: RawFile[], archiveNames: string[] = []): Pa
       warnings.push({
         code: 'kind_conflict',
         path: file.path,
+        params: { fromFilename, fromDocument },
         message: `${file.path} is named like ${RELATION_LABELS[fromFilename]} but its heading says ${RELATION_LABELS[fromDocument]}. Using the heading.`,
       });
     }
@@ -117,7 +118,7 @@ export function parseRawFiles(files: RawFile[], archiveNames: string[] = []): Pa
       });
     } else if (confidence === 'low') {
       warnings.push({
-        code: 'no_timestamps',
+        code: 'fallback_extractor',
         path: file.path,
         message: `${file.path} was read with a fallback strategy because its usual structure was missing. Usernames were recovered but follow dates were not.`,
       });
@@ -125,6 +126,7 @@ export function parseRawFiles(files: RawFile[], archiveNames: string[] = []): Pa
       warnings.push({
         code: 'no_timestamps',
         path: file.path,
+        params: { kind },
         message: `${file.path} contains no follow dates, so rename suggestions are unavailable for ${RELATION_LABELS[kind]}.`,
       });
     }
@@ -133,6 +135,7 @@ export function parseRawFiles(files: RawFile[], archiveNames: string[] = []): Pa
   for (const [kind, count] of duplicateCounts) {
     warnings.push({
       code: 'duplicate_handles',
+      params: { count, kind },
       message: `${count} duplicate ${count === 1 ? 'entry' : 'entries'} in ${RELATION_LABELS[kind]} were merged.`,
     });
   }
@@ -201,6 +204,13 @@ function detectTruncatedLists(
     .filter((s) => s.dated > 0 && s.predating === 0)
     .map((s) => ({
       code: 'possibly_truncated' as const,
+      params: {
+        kind: s.kind,
+        witnessKind: witness.kind,
+        windowFrom: coverage.from.slice(0, 10),
+        predating: witness.predating,
+        count: witness.predating,
+      },
       message:
         `Every entry in ${RELATION_LABELS[s.kind]} is dated inside the window this export says it covers ` +
         `(from ${coverage.from.slice(0, 10)}), while ${RELATION_LABELS[witness.kind]} contains ${witness.predating} ` +
@@ -222,6 +232,7 @@ function resolveExportDate(
     if (generated.length > 1) {
       warnings.push({
         code: 'mixed_export_dates',
+        params: { count: generated.length },
         message: `The uploaded files were generated at ${generated.length} different times. They may come from separate exports. The most recent date was used.`,
       });
     }

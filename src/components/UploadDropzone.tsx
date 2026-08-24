@@ -1,4 +1,5 @@
 import { useRef, useState, type DragEvent } from 'react';
+import { t } from '../i18n';
 import { cx } from './ui';
 
 export function UploadDropzone({
@@ -45,12 +46,10 @@ export function UploadDropzone({
       />
 
       <p className="text-base font-medium text-ink-100">
-        {busy ? 'Reading your export…' : 'Drop your Instagram export here'}
+        {busy ? t('upload.reading') : t('upload.dropTitle')}
       </p>
       <p className="mx-auto mt-2 max-w-lg text-sm text-ink-400">
-        Drop the ZIP, or unzip it and drop the two HTML files:{' '}
-        <code className="text-ink-300">followers</code> and{' '}
-        <code className="text-ink-300">following</code>.
+        {t('upload.dropHint', { followers: 'followers', following: 'following' })}
       </p>
 
       <button
@@ -59,7 +58,7 @@ export function UploadDropzone({
         onClick={() => inputRef.current?.click()}
         className="mt-5 inline-flex items-center rounded-lg bg-violet-500 px-4 py-2 text-sm font-medium text-white hover:bg-violet-400 disabled:opacity-60"
       >
-        Choose files
+        {t('upload.chooseFiles')}
       </button>
     </div>
   );

@@ -2,17 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { keywordsEqual, parseKeywordList } from '../analysis/classify';
 import { LimitationsPanel } from '../components/LimitationsPanel';
 import { Button, Callout, Card, SectionTitle, TextArea } from '../components/ui';
+import { t, useI18n } from '../i18n';
 import { formatCount } from '../lib/format';
 import {
   RECOMMENDED_BRAND_KEYWORD_GROUPS,
   RECOMMENDED_BRAND_KEYWORDS,
   RECOMMENDED_BRAND_SUFFIXES,
 } from '../model/keywords';
-import { ACCOUNT_CATEGORY_LABELS, type AccountCategory } from '../model/types';
+import { type AccountCategory } from '../model/types';
 import { parseBackup, serializeBackup } from '../storage/repo';
 import { useStore } from '../state/store';
 
 export function SettingsScreen() {
+  useI18n();
   const { snapshots, settings, restore, wipe, updateSettings } = useStore();
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [message, setMessage] = useState<{ tone: 'good' | 'danger'; text: string } | null>(null);
@@ -40,9 +42,12 @@ export function SettingsScreen() {
     try {
       const data = parseBackup(await file.text());
       await restore(data);
+      const count = formatCount(data.snapshots.length);
       setMessage({
         tone: 'good',
-        text: `Restored ${formatCount(data.snapshots.length)} snapshot${data.snapshots.length === 1 ? '' : 's'}.`,
+        text: t(data.snapshots.length === 1 ? 'settings.restored' : 'settings.restoredPlural', {
+          count,
+        }),
       });
     } catch (error) {
       setMessage({ tone: 'danger', text: error instanceof Error ? error.message : String(error) });
@@ -52,27 +57,23 @@ export function SettingsScreen() {
   return (
     <div className="space-y-6">
       <div>
-        <SectionTitle>Your data</SectionTitle>
+        <SectionTitle>{t('settings.yourData')}</SectionTitle>
         <Card className="space-y-4 p-5">
-          <p className="text-sm text-ink-400">
-            Everything lives in this browser&rsquo;s IndexedDB storage on this device. It is never
-            sent anywhere. Clearing your browser data, or using a different browser or device, means
-            starting over &mdash; so keep a backup if the history matters to you.
-          </p>
+          <p className="text-sm text-ink-400">{t('settings.dataBody')}</p>
 
           <dl className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
             <div className="flex gap-2">
-              <dt className="text-ink-500">Snapshots</dt>
+              <dt className="text-ink-500">{t('settings.snapshots')}</dt>
               <dd className="font-medium text-ink-200">{formatCount(snapshots.length)}</dd>
             </div>
             <div className="flex gap-2">
-              <dt className="text-ink-500">Classified accounts</dt>
+              <dt className="text-ink-500">{t('settings.classified')}</dt>
               <dd className="font-medium text-ink-200">
                 {formatCount(Object.keys(settings.classifications).length)}
               </dd>
             </div>
             <div className="flex gap-2">
-              <dt className="text-ink-500">Dismissed rename suggestions</dt>
+              <dt className="text-ink-500">{t('settings.dismissedRenames')}</dt>
               <dd className="font-medium text-ink-200">
                 {formatCount(settings.dismissedRenames.length)}
               </dd>
@@ -83,7 +84,7 @@ export function SettingsScreen() {
             <ul className="flex flex-wrap gap-2 text-xs">
               {Object.entries(counts).map(([category, count]) => (
                 <li key={category} className="rounded-full border border-ink-700 px-2.5 py-1 text-ink-300">
-                  {ACCOUNT_CATEGORY_LABELS[category as AccountCategory]}: {formatCount(count)}
+                  {t(`category.${category as AccountCategory}`)}: {formatCount(count)}
                 </li>
               ))}
             </ul>
@@ -91,10 +92,10 @@ export function SettingsScreen() {
 
           <div className="flex flex-wrap gap-2 border-t border-ink-800 pt-4">
             <Button variant="ghost" onClick={downloadBackup} disabled={snapshots.length === 0}>
-              Download backup
+              {t('settings.downloadBackup')}
             </Button>
             <Button variant="ghost" onClick={() => fileRef.current?.click()}>
-              Restore from backup
+              {t('settings.restoreBackup')}
             </Button>
             <input
               ref={fileRef}
@@ -119,12 +120,9 @@ export function SettingsScreen() {
       />
 
       <div>
-        <SectionTitle>Delete everything</SectionTitle>
+        <SectionTitle>{t('settings.deleteEverything')}</SectionTitle>
         <Card className="space-y-3 p-5">
-          <p className="text-sm text-ink-400">
-            Removes every snapshot, every category you set, and the database itself. This cannot be
-            undone, and a backup is the only way back.
-          </p>
+          <p className="text-sm text-ink-400">{t('settings.deleteBody')}</p>
           {confirmWipe ? (
             <div className="flex flex-wrap gap-2">
               <Button
@@ -132,18 +130,18 @@ export function SettingsScreen() {
                 onClick={async () => {
                   await wipe();
                   setConfirmWipe(false);
-                  setMessage({ tone: 'good', text: 'All local data deleted.' });
+                  setMessage({ tone: 'good', text: t('settings.deleted') });
                 }}
               >
-                Yes, delete all my data
+                {t('settings.yesDelete')}
               </Button>
               <Button variant="ghost" onClick={() => setConfirmWipe(false)}>
-                Cancel
+                {t('settings.cancel')}
               </Button>
             </div>
           ) : (
             <Button variant="danger" onClick={() => setConfirmWipe(true)}>
-              Delete all data
+              {t('settings.deleteAll')}
             </Button>
           )}
         </Card>
@@ -161,6 +159,7 @@ function KeywordEditor({
   keywords: string[];
   onSave: (keywords: string[]) => void | Promise<void>;
 }) {
+  useI18n();
   const [draft, setDraft] = useState(() => keywords.join('\n'));
 
   useEffect(() => {
@@ -172,15 +171,9 @@ function KeywordEditor({
 
   return (
     <div>
-      <SectionTitle>Organisation keyword guesses</SectionTitle>
+      <SectionTitle>{t('settings.keywordsTitle')}</SectionTitle>
       <Card className="space-y-4 p-5">
-        <p className="text-sm text-ink-400">
-          Usernames are matched against these fragments, entirely in this browser. A hit is a
-          suggestion to mark the account as a brand, never an automatic classification. Words
-          under 3 characters are ignored, except tv, which only matches at the end of a
-          username. If you saved an older list, use Reset to recommended to pick up the new
-          words.
-        </p>
+        <p className="text-sm text-ink-400">{t('settings.keywordsBody')}</p>
 
         <div className="flex flex-wrap gap-2">
           {Object.entries(RECOMMENDED_BRAND_KEYWORD_GROUPS).map(([group, words]) => (
@@ -189,46 +182,44 @@ function KeywordEditor({
               className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
               title={words.join(', ')}
             >
-              {group} · {words.length}
+              {t(`keywordGroup.${group}`)} · {words.length}
             </span>
           ))}
           <span
             className="rounded-full border border-ink-700 px-2.5 py-1 text-[11px] text-ink-400"
             title={RECOMMENDED_BRAND_SUFFIXES.join(', ')}
           >
-            Domains · {RECOMMENDED_BRAND_SUFFIXES.length}
+            {t('settings.domains')} · {RECOMMENDED_BRAND_SUFFIXES.length}
           </span>
         </div>
 
         <label className="block text-xs text-ink-400">
-          Your list (one per line, or separated by commas)
+          {t('settings.yourList')}
           <TextArea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-          rows={16}
+            rows={16}
             spellCheck={false}
             className="mt-1"
           />
         </label>
 
         {parsed.ignored.length > 0 ? (
-          <Callout tone="warning" title="Too short to use safely">
-            Ignored: {parsed.ignored.join(', ')}
+          <Callout tone="warning" title={t('settings.tooShort')}>
+            {t('settings.ignored', { list: parsed.ignored.join(', ') })}
           </Callout>
         ) : null}
 
         <p className="text-xs text-ink-500">
-          {formatCount(parsed.keywords.length)} keyword{parsed.keywords.length === 1 ? '' : 's'}
-          {usingRecommended ? ' · this is the recommended list' : ''}
+          {t(parsed.keywords.length === 1 ? 'settings.keywordCount' : 'settings.keywordCountPlural', {
+            count: formatCount(parsed.keywords.length),
+          })}
+          {usingRecommended ? t('settings.recommended') : ''}
         </p>
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant="primary"
-            disabled={!dirty}
-            onClick={() => onSave(parsed.keywords)}
-          >
-            Save keywords
+          <Button variant="primary" disabled={!dirty} onClick={() => onSave(parsed.keywords)}>
+            {t('settings.saveKeywords')}
           </Button>
           <Button
             variant="ghost"
@@ -239,7 +230,7 @@ function KeywordEditor({
               void onSave(next);
             }}
           >
-            Reset to recommended
+            {t('settings.resetRecommended')}
           </Button>
         </div>
       </Card>

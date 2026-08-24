@@ -1,4 +1,5 @@
 import { DEFAULT_SETTINGS, type AppSettings, type Snapshot } from '../model/types';
+import { detectLocale, t } from '../i18n';
 import { destroyDb, getDb, isPersistenceAvailable, SETTINGS_KEY } from './db';
 
 export interface StoredData {
@@ -7,13 +8,20 @@ export interface StoredData {
 }
 
 export async function loadAll(): Promise<StoredData> {
-  if (!isPersistenceAvailable()) return { snapshots: [], settings: DEFAULT_SETTINGS };
+  if (!isPersistenceAvailable()) {
+    return { snapshots: [], settings: { ...DEFAULT_SETTINGS, locale: detectLocale() } };
+  }
   const db = await getDb();
   const [snapshots, settings] = await Promise.all([
     db.getAll('snapshots'),
     db.get('settings', SETTINGS_KEY),
   ]);
-  return { snapshots, settings: { ...DEFAULT_SETTINGS, ...settings } };
+  return {
+    snapshots,
+    settings: settings
+      ? { ...DEFAULT_SETTINGS, ...settings, locale: settings.locale ?? detectLocale() }
+      : { ...DEFAULT_SETTINGS, locale: detectLocale() },
+  };
 }
 
 export async function saveSnapshot(snapshot: Snapshot): Promise<void> {
@@ -67,24 +75,24 @@ export function parseBackup(json: string): StoredData {
   try {
     raw = JSON.parse(json);
   } catch {
-    throw new Error('That file is not valid JSON.');
+    throw new Error(t('settings.backupInvalidJson'));
   }
 
   if (typeof raw !== 'object' || raw === null) {
-    throw new Error('That file does not look like a backup.');
+    throw new Error(t('settings.backupNotBackup'));
   }
 
   const backup = raw as Partial<Backup>;
   if (backup.format !== BACKUP_FORMAT) {
-    throw new Error('That file was not created by this app.');
+    throw new Error(t('settings.backupWrongApp'));
   }
   if (!Array.isArray(backup.snapshots)) {
-    throw new Error('The backup is missing its snapshots.');
+    throw new Error(t('settings.backupMissingSnapshots'));
   }
 
   const snapshots = backup.snapshots.filter(isSnapshotLike);
   if (snapshots.length !== backup.snapshots.length) {
-    throw new Error('The backup contains snapshots in an unreadable format.');
+    throw new Error(t('settings.backupUnreadable'));
   }
 
   return {

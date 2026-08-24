@@ -233,7 +233,7 @@ describe('resilience', () => {
     const snap = parseRawFiles([raw('followers_1.html', html)]);
     expect(handlesOf(snap, 'follower')).toEqual(['one.person', 'two_person']);
     expect(snap.sourceFiles[0].extractorId).toBe('text-list');
-    expect(snap.warnings.map((w) => w.code)).toContain('no_timestamps');
+    expect(snap.warnings.map((w) => w.code)).toContain('fallback_extractor');
   });
 });
 

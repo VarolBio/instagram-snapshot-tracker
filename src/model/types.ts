@@ -85,19 +85,25 @@ export interface SourceFile {
 
 export type ParseWarningCode =
   | 'unmatched_file'
+  | 'skipped_file_type'
   | 'no_entries'
   | 'no_timestamps'
+  | 'fallback_extractor'
   | 'kind_conflict'
   | 'duplicate_handles'
   | 'no_export_date'
   | 'mixed_export_dates'
   | 'possibly_truncated'
-  | 'unreadable_file';
+  | 'unreadable_file'
+  | 'zip_no_html'
+  | 'zip_unreadable'
+  | 'file_unreadable';
 
 export interface ParseWarning {
   code: ParseWarningCode;
   message: string;
   path?: string;
+  params?: Record<string, string | number>;
 }
 
 /** Where the snapshot's export date came from, shown in the UI so it is never a mystery. */
@@ -174,6 +180,8 @@ export interface AppSettings {
   brandKeywords: string[];
   /** Handles the user said were not organisations, so the keyword guess leaves them alone. */
   dismissedKeywordSuggestions: string[];
+  /** UI language. Independent of the keyword list. */
+  locale: 'en' | 'tr';
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -182,4 +190,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   hideNonPersonalInNonFollowers: false,
   brandKeywords: [...RECOMMENDED_BRAND_KEYWORDS],
   dismissedKeywordSuggestions: [],
+  locale: 'en',
 };
