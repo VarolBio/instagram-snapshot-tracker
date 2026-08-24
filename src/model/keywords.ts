@@ -1,9 +1,8 @@
 /**
  * Recommended organisation-looking fragments for username guesses.
  *
- * These are a starting list the user can edit. A word only belongs here if it is far
- * more likely in a brand handle than in a person's name. Short fragments like "co" or
- * "art" are excluded because they fire inside ordinary names.
+ * These are a starting list the user can edit. Short fragments like "co" are still
+ * excluded unless they were explicitly requested.
  *
  * Deliberately omitted from the source lists, even when requested:
  * - "band" matches "husband"
@@ -13,8 +12,7 @@
  * - "jordan", "georgia", "chad", "mali", "wales" are common personal names
  * - "nice" is an ordinary English word
  * - "fan" matches "stefan"; "inter" matches "internet"
- * - "sol"/"son"/"art"/"sine"/"cine"/"uni"/"milli"/"rock" fire inside ordinary words
- * - "ask" matches "basket" / "mask" / "alaska"; "pub" matches "republic"
+ * - "sol"/"son"/"sine"/"cine"/"uni"/"milli"/"rock" fire inside ordinary words
  * - "bot" matches "robot" / "abbot"; "wood" matches "hollywood"; "tree" matches "street"
  * - "edu" without a dot is covered by ".edu"; "ınvest" is covered by folding ı→i
  * - German/Spanish: "sas" matches "sasha"; "red" matches "alfred"; "ong" matches "song"
@@ -904,6 +902,38 @@ export const RECOMMENDED_BRAND_KEYWORD_GROUPS: Record<string, readonly string[]>
     'question',
     'workshop',
     'thing',
+    'doc',
+    'art',
+    'ask',
+    'genetics',
+    'tech',
+    'city',
+    'camp',
+    'character',
+    'natgeo',
+    'nytimes',
+    'phd',
+    'outdoor',
+    'pub',
+    'sports',
+    'flex',
+    'text',
+    'tweet',
+    'nature',
+    'chemical',
+    'bitch',
+    'sister',
+    'your',
+    'walker',
+    'trcom',
+    'trworld',
+    'premed',
+    'void',
+    'yearsold',
+    'videolog',
+    'projekt',
+    'quick',
+    'bytheway',
   ]),
 
   Turkish: unique([
@@ -1179,6 +1209,9 @@ export const RECOMMENDED_BRAND_KEYWORD_GROUPS: Record<string, readonly string[]>
     'grup',
     'tenis',
     'atolye',
+    'gonullu',
+    'etkinlik',
+    'medikal',
   ]),
 
   German: unique([

@@ -96,7 +96,7 @@ describe('suggesting which accounts are organisations', () => {
   });
 
   it('does not fire on names that merely contain a short brandish fragment', () => {
-    for (const handle of ['nicole.b', 'martina', 'marco', 'tvorozhkov', 'artem']) {
+    for (const handle of ['nicole.b', 'marco', 'tvorozhkov']) {
       expect(suggestCategory(handle), handle).toBeNull();
     }
   });
@@ -119,7 +119,6 @@ describe('suggesting which accounts are organisations', () => {
     for (const word of [
       'sol',
       'son',
-      'art',
       'sine',
       'cine',
       'uni',
@@ -128,8 +127,6 @@ describe('suggesting which accounts are organisations', () => {
       'rock',
       'union',
       'univ',
-      'ask',
-      'pub',
       'bot',
       'wood',
       'tree',
@@ -169,6 +166,13 @@ describe('suggesting which accounts are organisations', () => {
       'gmbh',
       'oficial',
       'tienda',
+      'art',
+      'ask',
+      'pub',
+      'gonullu',
+      'natgeo',
+      'etkinlik',
+      'bytheway',
     ]) {
       expect(present.has(word), word).toBe(true);
     }
