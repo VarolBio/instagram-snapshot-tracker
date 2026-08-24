@@ -396,6 +396,8 @@ export const tr = {
     Places: 'Yerler',
     EnglishExtra: 'Diğer İngilizce',
     Turkish: 'Türkçe',
+    German: 'Almanca',
+    Spanish: 'İspanyolca',
   },
   limitation: {
     allTimeTitle: '"Tüm zamanlar" bütün tarih demek değildir',

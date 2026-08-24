@@ -116,7 +116,27 @@ describe('suggesting which accounts are organisations', () => {
 
   it('keeps noisy shorts out of the recommended list', () => {
     const present = new Set(RECOMMENDED_BRAND_KEYWORDS);
-    for (const word of ['sol', 'son', 'art', 'sine', 'cine', 'uni', 'edu', 'milli', 'rock', 'union', 'univ']) {
+    for (const word of [
+      'sol',
+      'son',
+      'art',
+      'sine',
+      'cine',
+      'uni',
+      'edu',
+      'milli',
+      'rock',
+      'union',
+      'univ',
+      'ask',
+      'pub',
+      'bot',
+      'wood',
+      'tree',
+      'sas',
+      'red',
+      'ong',
+    ]) {
       expect(present.has(word), word).toBe(false);
     }
     expect(present.has('.edu')).toBe(true);
@@ -142,6 +162,13 @@ describe('suggesting which accounts are organisations', () => {
       'ataturk',
       'futbol',
       'sondakika',
+      'dogaclama',
+      'symposium',
+      'football',
+      'atolye',
+      'gmbh',
+      'oficial',
+      'tienda',
     ]) {
       expect(present.has(word), word).toBe(true);
     }

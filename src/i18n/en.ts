@@ -391,6 +391,8 @@ export const en = {
     Places: 'Places',
     EnglishExtra: 'More English',
     Turkish: 'Turkish',
+    German: 'German',
+    Spanish: 'Spanish',
   },
   limitation: {
     allTimeTitle: '"All time" is not all of history',
