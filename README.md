@@ -1,11 +1,12 @@
 # Instagram Snapshot Tracker
 
 Track how your Instagram followers and following change over time by comparing your own
-data exports. Everything runs in your browser. Nothing is uploaded anywhere.
+data exports. Instagram files stay in your browser. Page visits are counted by GoatCounter.
 
 **[Open the app](https://varolbio.github.io/instagram-snapshot-tracker/)**
 
-> Your Instagram export is processed locally in your browser and is not uploaded to a server.
+> Your Instagram export is processed locally in your browser and is not uploaded.
+> Page visits are counted by GoatCounter, without cookies.
 
 ## What it does
 
@@ -20,8 +21,8 @@ changed between any two of them.
 - Search, sorting, filtering, and manual categories for personal / creator / business
 - Duplicate upload detection, local backup export and import, and one-click delete-all
 
-There is no Instagram login, no scraping, no unofficial API, and no server. The app only
-ever reads the files you hand it.
+There is no Instagram login, no scraping, and no unofficial API. The app only ever reads
+the files you hand it. Page visits go to GoatCounter (no cookies, no Instagram data).
 
 ## What a single upload already tells you
 
@@ -146,9 +147,12 @@ Settings → Pages → Source to **GitHub Actions** once, and note that `vite.co
 
 ## Privacy
 
-No analytics, no telemetry, no network requests at runtime, no cookies, and no backend.
-Snapshots live in this browser's IndexedDB on this device only, which also means clearing
-your browser data deletes them. Use the backup option in Settings if the history matters.
+Instagram export files never leave this browser. Snapshots live in IndexedDB on this device
+only, which also means clearing your browser data deletes them. Use the backup option in
+Settings if the history matters.
+
+Page visits are counted with [GoatCounter](https://instawebcount147.goatcounter.com) (no cookies,
+no personal identifiers). Ad blockers often hide `gc.zgo.at` / `goatcounter.com`.
 
 ## Licence
 

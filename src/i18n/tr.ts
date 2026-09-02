@@ -4,10 +4,10 @@ export const tr = {
     tagline:
       'Kendi Instagram veri dışa aktarımlarınızı zaman içinde karşılaştırın. Dışa aktarımın kanıtladığını gösterir, yalnızca desteklediği çıkarımları yapar, bilemediğini de söyler.',
     footer:
-      'Instagram girişi yok, tarama yok, sunucu yok. Bu uygulama yalnızca verdiğiniz dışa aktarım dosyalarını okur. Instagram, Meta Platforms, Inc. markasıdır; bu projeyi onaylamaz.',
+      'Instagram girişi yok, tarama yok. Dışa aktarım dosyaları bu tarayıcıda kalır. Sayfa ziyaretleri GoatCounter ile, çerez olmadan sayılır. Instagram, Meta Platforms, Inc. markasıdır; bu projeyi onaylamaz.',
     loading: 'Kayıtlı anlık görüntüleriniz yükleniyor…',
     privacy:
-      'Instagram dışa aktarımınız tarayıcınızda, bu cihazda işlenir; hiçbir sunucuya yüklenmez.',
+      'Instagram dışa aktarımınız tarayıcınızda işlenir; dosyalar yüklenmez. Sayfa ziyaretleri GoatCounter ile, çerez olmadan sayılır.',
     savingUnavailable: 'Kayıt kullanılamıyor',
     persistenceError: 'Kayıtlı veri açılamadı, bu oturum hatırlanmayacak. {detail}',
     langEn: 'EN',

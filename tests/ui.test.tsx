@@ -56,8 +56,9 @@ describe('the app shell', () => {
   it('states the privacy promise before anything else', async () => {
     await mount();
     expect(container.textContent).toContain(
-      'processed locally in your browser and is not uploaded to a server',
+      'processed locally in your browser and is not uploaded',
     );
+    expect(container.textContent).toContain('GoatCounter');
   });
 
   it('lands on the upload screen with instructions', async () => {

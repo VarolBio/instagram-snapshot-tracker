@@ -4,9 +4,10 @@ export const en = {
     tagline:
       'Compare your own Instagram data exports over time. Shows what the exports prove, infers only what they support, and says so when it cannot tell.',
     footer:
-      'No Instagram login, no scraping, no server. This app only reads the export files you give it. Instagram is a trademark of Meta Platforms, Inc., which does not endorse this project.',
+      'No Instagram login, no scraping. Export files stay in this browser. Page visits are counted by GoatCounter, without cookies. Instagram is a trademark of Meta Platforms, Inc., which does not endorse this project.',
     loading: 'Loading your saved snapshots…',
-    privacy: 'Your Instagram export is processed locally in your browser and is not uploaded to a server.',
+    privacy:
+      'Your Instagram export is processed locally in your browser and is not uploaded. Page visits are counted by GoatCounter, without cookies.',
     savingUnavailable: 'Saving is unavailable',
     persistenceError:
       'Saved data could not be opened, so this session will not be remembered. {detail}',
