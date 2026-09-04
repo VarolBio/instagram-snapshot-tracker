@@ -7,7 +7,7 @@ export const tr = {
       'Instagram girişi yok, tarama yok. Dışa aktarım dosyaları bu tarayıcıda kalır. Sayfa ziyaretleri GoatCounter ile, çerez olmadan sayılır. Instagram, Meta Platforms, Inc. markasıdır; bu projeyi onaylamaz.',
     loading: 'Kayıtlı anlık görüntüleriniz yükleniyor…',
     privacy:
-      'Instagram dışa aktarımınız tarayıcınızda işlenir; dosyalar yüklenmez. Sayfa ziyaretleri GoatCounter ile, çerez olmadan sayılır.',
+      'Instagram dışa aktarımınız tarayıcınızda işlenir; dosyalar yüklenmez.',
     savingUnavailable: 'Kayıt kullanılamıyor',
     persistenceError: 'Kayıtlı veri açılamadı, bu oturum hatırlanmayacak. {detail}',
     langEn: 'EN',
@@ -16,8 +16,8 @@ export const tr = {
   },
   tab: {
     upload: 'Yükle',
-    current: 'Şu an',
-    'non-followers': 'Takip etmeyenler',
+    current: 'Güncel',
+    'non-followers': 'Geri takip etmeyenler',
     changes: 'Değişenler',
     accounts: 'Hesaplar',
     snapshots: 'Kayıtlar',
@@ -32,7 +32,7 @@ export const tr = {
     close_friend: 'Yakın arkadaşlar',
     blocked: 'Engellenenler',
     restricted: 'Kısıtlananlar',
-    hidden_story_from: 'Hikâyesi gizlenenler',
+    hidden_story_from: 'Hikâyeyi gizledikleriniz',
   },
   listPhrase: {
     follower: 'takipçileriniz',
@@ -43,7 +43,7 @@ export const tr = {
     close_friend: 'yakın arkadaş listeniz',
     blocked: 'engellenenler listeniz',
     restricted: 'kısıtlananlar listeniz',
-    hidden_story_from: 'hikâyesi gizlenenler listeniz',
+    hidden_story_from: 'hikâyeyi gizledikleriniz listeniz',
   },
   category: {
     personal: 'Kişisel',
@@ -91,7 +91,7 @@ export const tr = {
     outOfRange:
       'Bu hesap {date} tarihinde takip etmeye başladı; bu, "{label}" kapsamının ({window} itibarıyla) dışında. Dışa aktarım onları hâlâ orada olsalar da listelemezdi, yokluk bir şey kanıtlamaz.',
     rangeMismatch:
-      '"{label}" {window} tarihinden başlayan bir aralık için alındı ve {list} listesinde o tarihten önce kimse yok. {affected} {accounts} yalnızca bu yüzden eksik, bu yüzden {pronoun} gitti sayılmak yerine ayrıldı. Düzgün karşılaştırmak için aralığı "Tüm zamanlar" yapıp yeniden dışa aktarın.',
+      '"{label}" {window} tarihinden başlayan bir aralık için alındı ve {list} listesinde o tarihten önce kimse yok. {affected} {accounts} yalnızca bu yüzden eksik, bu yüzden gitti sayılmak yerine ayrı tutuldu. Düzgün karşılaştırmak için aralığı "Tüm zamanlar" yapıp yeniden dışa aktarın.',
     accountsOne: 'hesap',
     accountsMany: 'hesap',
     pronounOne: 'o hesaba',
@@ -372,7 +372,7 @@ export const tr = {
     deleted: 'Tüm yerel veriler silindi.',
     keywordsTitle: 'Kuruluş anahtar sözcük tahminleri',
     keywordsBody:
-      'Kullanıcı adları bu parçalarla, yalnızca bu tarayıcıda eşleştirilir. Bir isabet, hesabı marka işaretlemek için öneridir; otomatik sınıflandırma değildir. 3 karakterden kısa sözcükler yok sayılır; tv hariç, o yalnızca kullanıcı adının sonunda eşleşir. Eski bir liste kaydettiyseniz yeni sözcükler için Önerilene sıfırla’yı kullanın.',
+      'Kullanıcı adları bu parçalarla, yalnızca bu tarayıcıda eşleştirilir. Bir isabet, hesabı marka işaretlemek için öneridir; otomatik sınıflandırma değildir. 3 karakterden kısa sözcükler yok sayılır; tv (yalnızca kullanıcı adının sonunda) ve dr, av, dt, dj, md gibi unvan kısaltmaları (başta, sonda veya dr.ahmet gibi ayrı bir parça) hariç. Eski bir liste kaydettiyseniz yeni sözcükler için Önerilene sıfırla’yı kullanın.',
     domains: 'Alan adları',
     yourList: 'Listeniz (satır satır veya virgülle)',
     tooShort: 'Güvenle kullanılamayacak kadar kısa',
@@ -398,6 +398,7 @@ export const tr = {
     Turkish: 'Türkçe',
     German: 'Almanca',
     Spanish: 'İspanyolca',
+    Titles: 'Unvanlar',
   },
   limitation: {
     allTimeTitle: '"Tüm zamanlar" bütün tarih demek değildir',

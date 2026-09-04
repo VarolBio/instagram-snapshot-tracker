@@ -8,6 +8,7 @@ import {
 import {
   RECOMMENDED_BRAND_KEYWORD_GROUPS,
   RECOMMENDED_BRAND_KEYWORDS,
+  SHORT_TITLE_KEYWORDS,
 } from '../src/model/keywords';
 
 describe('suggesting which accounts are organisations', () => {
@@ -83,9 +84,10 @@ describe('suggesting which accounts are organisations', () => {
   });
 
   it('keeps every recommended keyword long enough not to fire inside ordinary names', () => {
+    const shortTitles = new Set<string>(SHORT_TITLE_KEYWORDS);
     for (const [group, words] of Object.entries(RECOMMENDED_BRAND_KEYWORD_GROUPS)) {
       for (const word of words) {
-        if (word === 'tv') continue;
+        if (word === 'tv' || shortTitles.has(word)) continue;
         expect(word.length, `${group}/${word}`).toBeGreaterThanOrEqual(3);
       }
     }
@@ -173,6 +175,9 @@ describe('suggesting which accounts are organisations', () => {
       'natgeo',
       'etkinlik',
       'bytheway',
+      'avukat',
+      'dr',
+      'av',
     ]) {
       expect(present.has(word), word).toBe(true);
     }
@@ -189,6 +194,15 @@ describe('suggesting which accounts are organisations', () => {
     expect(suggestCategory('crossfitgym')?.matched).toBe('gym');
     expect(suggestCategory('officialpage')?.matched).toBe('officialpage');
   });
+
+  it('matches short titles as a prefix, suffix, or whole token, not a mid-name substring', () => {
+    expect(suggestCategory('dr.ahmet')?.matched).toMatch(/^dr\.?$/);
+    expect(suggestCategory('drahmet')?.matched).toBe('dr');
+    expect(suggestCategory('av_mehmet')?.matched).toBe('av');
+    expect(suggestCategory('ahmet.dr')?.matched).toMatch(/^dr\.?$/);
+    expect(suggestCategory('name.dr.office')?.matched).toMatch(/^dr\.?$/);
+    expect(suggestCategory('adrian')).toBeNull();
+  });
 });
 
 describe('editing the keyword list', () => {
@@ -203,6 +217,11 @@ describe('editing the keyword list', () => {
   it('ignores fragments that would match inside ordinary names', () => {
     expect(parseKeywordList('co art tv official').ignored).toEqual(['co']);
     expect(parseKeywordList('co art tv official').keywords).toEqual(['art', 'tv', 'official']);
+  });
+
+  it('keeps short titles that would otherwise be dropped as too short', () => {
+    expect(parseKeywordList('dr av dt co').keywords).toEqual(['dr', 'av', 'dt']);
+    expect(parseKeywordList('dr av dt co').ignored).toEqual(['co']);
   });
 
   it('treats the recommended list as equal to itself regardless of order', () => {

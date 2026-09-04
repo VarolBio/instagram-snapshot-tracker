@@ -11,7 +11,7 @@
  * precision, low recall - the right trade when a wrong guess hides a friend.
  */
 
-import { RECOMMENDED_BRAND_KEYWORDS } from '../model/keywords';
+import { RECOMMENDED_BRAND_KEYWORDS, SHORT_TITLE_KEYWORDS } from '../model/keywords';
 import type { AccountCategory } from '../model/types';
 import { t } from '../i18n';
 
@@ -31,7 +31,7 @@ export interface ParsedKeywordList {
 /**
  * Turns a textarea into a keyword list. Commas, spaces and line breaks all separate
  * terms. Duplicates are dropped. Fragments shorter than 3 characters are ignored, except
- * "tv", which is kept and matched only as a suffix.
+ * "tv" (suffix only) and short titles like "dr" / "av" (prefix, suffix, or whole token).
  */
 export function parseKeywordList(text: string): ParsedKeywordList {
   const seen = new Set<string>();
@@ -56,7 +56,9 @@ export function parseKeywordList(text: string): ParsedKeywordList {
 export function isUsableKeyword(term: string): boolean {
   if (term.startsWith('.')) return term.length >= 3;
   if (term === 'tv') return true;
-  return foldTurkish(term).length >= 3;
+  const folded = foldTurkish(term);
+  if (SHORT_TITLE_KEYWORDS.includes(folded)) return true;
+  return folded.length >= 3;
 }
 
 /** Instagram handles are ASCII, so ı/ş/ğ/ü/ö/ç are folded to i/s/g/u/o/c before matching. */
@@ -109,6 +111,16 @@ export function suggestCategory(
 function matchesTerm(foldedHandle: string, term: string): boolean {
   const foldedTerm = foldTurkish(term);
   if (term.startsWith('.')) return foldedHandle.endsWith(foldedTerm) || foldedHandle.includes(foldedTerm);
+  if (SHORT_TITLE_KEYWORDS.includes(foldedTerm)) {
+    if (
+      foldedHandle === foldedTerm ||
+      foldedHandle.startsWith(foldedTerm) ||
+      foldedHandle.endsWith(foldedTerm)
+    ) {
+      return true;
+    }
+    return foldedHandle.split(/[._]+/).includes(foldedTerm);
+  }
   // Two-letter terms like "tv" only count at the end of a handle ("failtv"), never inside it.
   if (foldedTerm.length <= 2) {
     return foldedHandle === foldedTerm || foldedHandle.endsWith(foldedTerm);

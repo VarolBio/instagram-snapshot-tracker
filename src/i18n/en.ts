@@ -7,7 +7,7 @@ export const en = {
       'No Instagram login, no scraping. Export files stay in this browser. Page visits are counted by GoatCounter, without cookies. Instagram is a trademark of Meta Platforms, Inc., which does not endorse this project.',
     loading: 'Loading your saved snapshots…',
     privacy:
-      'Your Instagram export is processed locally in your browser and is not uploaded. Page visits are counted by GoatCounter, without cookies.',
+      'Your Instagram export is processed locally in your browser and is not uploaded.',
     savingUnavailable: 'Saving is unavailable',
     persistenceError:
       'Saved data could not be opened, so this session will not be remembered. {detail}',
@@ -368,7 +368,7 @@ export const en = {
     deleted: 'All local data deleted.',
     keywordsTitle: 'Organisation keyword guesses',
     keywordsBody:
-      'Usernames are matched against these fragments, entirely in this browser. A hit is a suggestion to mark the account as a brand, never an automatic classification. Words under 3 characters are ignored, except tv, which only matches at the end of a username. If you saved an older list, use Reset to recommended to pick up the new words.',
+      'Usernames are matched against these fragments, entirely in this browser. A hit is a suggestion to mark the account as a brand, never an automatic classification. Words under 3 characters are ignored, except tv (end of a username only) and title abbreviations such as dr, av, dt, dj, md (start, end, or a whole token like dr.ahmet). If you saved an older list, use Reset to recommended to pick up the new words.',
     domains: 'Domains',
     yourList: 'Your list (one per line, or separated by commas)',
     tooShort: 'Too short to use safely',
@@ -394,6 +394,7 @@ export const en = {
     Turkish: 'Turkish',
     German: 'German',
     Spanish: 'Spanish',
+    Titles: 'Titles',
   },
   limitation: {
     allTimeTitle: '"All time" is not all of history',
